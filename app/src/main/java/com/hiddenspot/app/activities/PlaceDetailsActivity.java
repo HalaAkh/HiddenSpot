@@ -33,6 +33,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_PLACE_DOWNVOTES = "place_downvotes";
     public static final String EXTRA_PLACE_FAVORITED = "place_favorited";
     public static final String EXTRA_POSTER_NAME     = "poster_name";
+    public static final String EXTRA_POSTER_AVATAR   = "poster_avatar";
     public static final String EXTRA_POSTED_DATE     = "posted_date";
 
     private String placeId;
@@ -43,6 +44,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     private android.widget.ImageView ivHero;
     private TextView tvCategoryBadge, tvPlaceName, tvAddress, tvPhone;
     private TextView tvRating, tvDescription, tvPosterName, tvPostedDate, tvPosterInitial;
+    private de.hdodenhof.circleimageview.CircleImageView ivPosterAvatar;
     private LinearLayout layoutPhone;
     private MaterialButton btnUpvote, btnDownvote, btnMaps, btnCall;
     private ImageButton btnBack, btnShare, btnFavorite;
@@ -67,6 +69,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         tvPosterName    = findViewById(R.id.tv_poster_name);
         tvPostedDate    = findViewById(R.id.tv_posted_date);
         tvPosterInitial = findViewById(R.id.tv_poster_initial);
+        ivPosterAvatar  = findViewById(R.id.iv_poster_avatar);
         layoutPhone     = findViewById(R.id.layout_phone);
         btnUpvote       = findViewById(R.id.btn_upvote);
         btnDownvote     = findViewById(R.id.btn_downvote);
@@ -93,6 +96,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         String category = intent.getStringExtra(EXTRA_PLACE_CATEGORY);
         double rating   = intent.getDoubleExtra(EXTRA_PLACE_RATING, 0.0);
         String poster   = intent.getStringExtra(EXTRA_POSTER_NAME);
+        String posterAvatar = intent.getStringExtra(EXTRA_POSTER_AVATAR);
         String date     = intent.getStringExtra(EXTRA_POSTED_DATE);
 
         if (image != null && !image.isEmpty()) {
@@ -134,6 +138,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             tvPosterName.setText(poster);
             tvPosterInitial.setText(poster.substring(0, 1).toUpperCase());
         }
+        updatePosterAvatar(posterAvatar);
         if (date != null) tvPostedDate.setText("Posted on " + date);
 
         updateVoteButtons();
@@ -218,6 +223,26 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
     private void updateFavoriteIcon() {
         btnFavorite.setImageResource(isFavorited ? R.drawable.ic_heart_filled : R.drawable.ic_heart);
+    }
+
+    private void updatePosterAvatar(String posterAvatar) {
+        if (posterAvatar != null && !posterAvatar.trim().isEmpty()) {
+            try {
+                tvPosterInitial.setVisibility(View.GONE);
+                if (posterAvatar.startsWith("http")) {
+                    Glide.with(this).load(posterAvatar).centerCrop().into(ivPosterAvatar);
+                } else {
+                    byte[] imageBytes = Base64.decode(posterAvatar, Base64.DEFAULT);
+                    Glide.with(this).load(imageBytes).centerCrop().into(ivPosterAvatar);
+                }
+            } catch (Exception e) {
+                ivPosterAvatar.setImageDrawable(null);
+                tvPosterInitial.setVisibility(View.VISIBLE);
+            }
+        } else {
+            ivPosterAvatar.setImageDrawable(null);
+            tvPosterInitial.setVisibility(View.VISIBLE);
+        }
     }
 
     private String getCategoryDisplay(String cat) {

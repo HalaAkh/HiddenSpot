@@ -130,6 +130,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
                 i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_DOWNVOTES, place.getDownvotes());
                 i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_FAVORITED, place.isFavorited());
                 i.putExtra(PlaceDetailsActivity.EXTRA_POSTER_NAME,     place.getUserName());
+                i.putExtra(PlaceDetailsActivity.EXTRA_POSTER_AVATAR,   place.getUserAvatar());
                 i.putExtra(PlaceDetailsActivity.EXTRA_POSTED_DATE,     place.getFormattedDate());
                 context.startActivity(i);
             });

@@ -109,6 +109,7 @@ public class FirebaseHelper {
         data.put("images", place.getImages());
         data.put("userId", place.getUserId());
         data.put("userName", place.getUserName());
+        data.put("userAvatar", place.getUserAvatar());
         data.put("rating", place.getRating());
         data.put("ratingCount", place.getRatingCount());
         data.put("likesCount", place.getLikesCount());

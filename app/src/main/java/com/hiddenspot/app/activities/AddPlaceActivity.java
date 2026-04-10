@@ -220,20 +220,43 @@ public class AddPlaceActivity extends AppCompatActivity {
         List<String> images = new ArrayList<>();
         if (!imageData.isEmpty()) images.add(imageData);
         String displayName = user.getDisplayName() != null ? user.getDisplayName() : "Anonymous";
-        
-        Place place = new Place(name, city, address, phone, desc,
-                selectedCategory, images, user.getUid(), displayName);
-                
-        FirebaseHelper.getInstance().addGem(place,
-                docRef -> runOnUiThread(() -> {
-                    Toast.makeText(this, "Gem added successfully!", Toast.LENGTH_LONG).show();
-                    finish();
-                }),
-                e -> runOnUiThread(() -> {
-                    btnSubmit.setEnabled(true);
-                    btnSubmit.setText("Submit Gem");
-                    Toast.makeText(this, "Database Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }));
+
+        FirebaseHelper.getInstance().fetchUserProfile(user.getUid(), snap -> {
+            String avatarUrl = snap.getString("avatarUrl");
+            if ((avatarUrl == null || avatarUrl.trim().isEmpty()) && user.getPhotoUrl() != null) {
+                avatarUrl = user.getPhotoUrl().toString();
+            }
+
+            Place place = new Place(name, city, address, phone, desc,
+                    selectedCategory, images, user.getUid(), displayName);
+            place.setUserAvatar(avatarUrl != null ? avatarUrl : "");
+
+            FirebaseHelper.getInstance().addGem(place,
+                    docRef -> runOnUiThread(() -> {
+                        Toast.makeText(this, "Gem added successfully!", Toast.LENGTH_LONG).show();
+                        finish();
+                    }),
+                    e -> runOnUiThread(() -> {
+                        btnSubmit.setEnabled(true);
+                        btnSubmit.setText("Submit Gem");
+                        Toast.makeText(this, "Database Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }));
+        }, e -> {
+            Place place = new Place(name, city, address, phone, desc,
+                    selectedCategory, images, user.getUid(), displayName);
+            place.setUserAvatar(user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "");
+
+            FirebaseHelper.getInstance().addGem(place,
+                    docRef -> runOnUiThread(() -> {
+                        Toast.makeText(this, "Gem added successfully!", Toast.LENGTH_LONG).show();
+                        finish();
+                    }),
+                    err -> runOnUiThread(() -> {
+                        btnSubmit.setEnabled(true);
+                        btnSubmit.setText("Submit Gem");
+                        Toast.makeText(this, "Database Error: " + err.getMessage(), Toast.LENGTH_LONG).show();
+                    }));
+        });
     }
 
     private String getText(TextInputEditText et) {
