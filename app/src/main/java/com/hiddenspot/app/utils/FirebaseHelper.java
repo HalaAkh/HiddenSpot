@@ -4,7 +4,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -56,14 +58,25 @@ public class FirebaseHelper {
                        OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(r -> {
-                    String uid = r.getUser().getUid();
+                    FirebaseUser firebaseUser = r.getUser();
+                    if (firebaseUser == null) {
+                        onFailure.onFailure(new IllegalStateException("User creation failed"));
+                        return;
+                    }
+                    String uid = firebaseUser.getUid();
                     Map<String, Object> user = new HashMap<>();
                     user.put("uid", uid);
                     user.put("displayName", username);
                     user.put("email", email);
+                    user.put("avatarUrl", "");
                     user.put("gemsCount", 0);
-                    db.collection(COLLECTION_USERS).document(uid).set(user)
-                            .addOnSuccessListener(v -> onSuccess.onSuccess(null))
+                    firebaseUser.updateProfile(new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(username)
+                                    .build())
+                            .addOnSuccessListener(v ->
+                                    db.collection(COLLECTION_USERS).document(uid).set(user)
+                                            .addOnSuccessListener(v2 -> onSuccess.onSuccess(null))
+                                            .addOnFailureListener(onFailure))
                             .addOnFailureListener(onFailure);
                 }).addOnFailureListener(onFailure);
     }
@@ -146,8 +159,59 @@ public class FirebaseHelper {
                 .get().addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
     }
 
+    // USER PROFILE
+    public void fetchUserProfile(String userId,
+                                 OnSuccessListener<DocumentSnapshot> onSuccess,
+                                 OnFailureListener onFailure) {
+        db.collection(COLLECTION_USERS).document(userId)
+                .get().addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
+    }
+
+    public void updateUserProfile(String userId, Map<String, Object> updates,
+                                  OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        db.collection(COLLECTION_USERS).document(userId)
+                .set(updates, com.google.firebase.firestore.SetOptions.merge())
+                .addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
+    }
+
+    public void updateAuthProfile(String displayName, String avatarUrl,
+                                  OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            onFailure.onFailure(new IllegalStateException("No authenticated user"));
+            return;
+        }
+
+        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder()
+                .setDisplayName(displayName);
+        if (avatarUrl != null && !avatarUrl.isEmpty() && avatarUrl.startsWith("http")) {
+            builder.setPhotoUri(android.net.Uri.parse(avatarUrl));
+        }
+        user.updateProfile(builder.build())
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+
+    public void syncUserProfileToGems(String userId, String displayName, String avatarUrl,
+                                      OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        db.collection(COLLECTION_GEMS).whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    com.google.firebase.firestore.WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        batch.update(doc.getReference(), "userName", displayName, "userAvatar", avatarUrl);
+                    }
+                    batch.commit().addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
+                })
+                .addOnFailureListener(onFailure);
+    }
+
     // STORAGE
     public StorageReference getImageUploadRef() {
         return storage.getReference().child("gem_images/" + UUID.randomUUID().toString() + ".jpg");
+    }
+
+    public StorageReference getAvatarUploadRef(String userId) {
+        return storage.getReference().child("avatars/" + userId + "/" + UUID.randomUUID().toString() + ".jpg");
     }
 }

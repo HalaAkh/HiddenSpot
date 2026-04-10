@@ -1,0 +1,262 @@
+package com.hiddenspot.app.activities;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseUser;
+import com.hiddenspot.app.R;
+import com.hiddenspot.app.utils.FirebaseHelper;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
+
+public class EditProfileActivity extends AppCompatActivity {
+
+    private static final int REQUEST_GALLERY = 300;
+    private static final int REQUEST_PERM = 301;
+
+    private CircleImageView ivAvatar;
+    private TextView tvAvatarLetter;
+    private TextInputEditText etDisplayName;
+    private TextInputEditText etEmail;
+    private MaterialButton btnSave;
+    private Uri selectedImageUri;
+    private String currentAvatarUrl = "";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_profile);
+
+        ivAvatar = findViewById(R.id.iv_avatar);
+        tvAvatarLetter = findViewById(R.id.tv_avatar_letter);
+        etDisplayName = findViewById(R.id.et_display_name);
+        etEmail = findViewById(R.id.et_email);
+        btnSave = findViewById(R.id.btn_save);
+        ImageButton btnBack = findViewById(R.id.btn_back);
+        ImageButton btnChangePhoto = findViewById(R.id.btn_change_photo);
+
+        btnBack.setOnClickListener(v -> finish());
+        btnChangePhoto.setOnClickListener(v -> checkPermissionAndPickGallery());
+        btnSave.setOnClickListener(v -> saveProfile());
+
+        loadProfile();
+    }
+
+    private void loadProfile() {
+        FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        etEmail.setText(user.getEmail() != null ? user.getEmail() : "");
+
+        FirebaseHelper.getInstance().fetchUserProfile(user.getUid(), snap -> runOnUiThread(() -> {
+            String displayName = snap.getString("displayName");
+            String avatarUrl = snap.getString("avatarUrl");
+
+            if (displayName == null || displayName.trim().isEmpty()) {
+                displayName = user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()
+                        ? user.getDisplayName()
+                        : deriveFallbackName(user);
+            }
+
+            if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+                avatarUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+            }
+
+            currentAvatarUrl = avatarUrl != null ? avatarUrl : "";
+            etDisplayName.setText(displayName);
+            updateAvatar(displayName, currentAvatarUrl);
+        }), e -> runOnUiThread(() -> {
+            String fallbackName = user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()
+                    ? user.getDisplayName()
+                    : deriveFallbackName(user);
+            currentAvatarUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+            etDisplayName.setText(fallbackName);
+            updateAvatar(fallbackName, currentAvatarUrl);
+        }));
+    }
+
+    private void checkPermissionAndPickGallery() {
+        String perm = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                ? Manifest.permission.READ_MEDIA_IMAGES : Manifest.permission.READ_EXTERNAL_STORAGE;
+        if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED) {
+            openGallery();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{perm}, REQUEST_PERM);
+        }
+    }
+
+    private void openGallery() {
+        startActivityForResult(new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI), REQUEST_GALLERY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == REQUEST_GALLERY && data != null) {
+            selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                tvAvatarLetter.setVisibility(View.GONE);
+                Glide.with(this).load(selectedImageUri).centerCrop().into(ivAvatar);
+            }
+        }
+    }
+
+    private void saveProfile() {
+        FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String displayName = etDisplayName.getText() != null
+                ? etDisplayName.getText().toString().trim() : "";
+        if (displayName.isEmpty()) {
+            etDisplayName.setError("Display name is required");
+            return;
+        }
+
+        btnSave.setEnabled(false);
+        btnSave.setText("Saving...");
+
+        if (selectedImageUri != null) {
+            persistProfile(user, displayName, encodeImageToBase64(selectedImageUri));
+        } else {
+            persistProfile(user, displayName, currentAvatarUrl);
+        }
+    }
+
+    private String encodeImageToBase64(Uri uri) {
+        try {
+            InputStream is = getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(is);
+            if (is != null) is.close();
+            if (bitmap == null) return "";
+            return encodeBitmapToBase64(bitmap);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String encodeBitmapToBase64(Bitmap bitmap) {
+        try {
+            int maxDimension = 400;
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            float ratio = Math.min((float) maxDimension / width, (float) maxDimension / height);
+            ratio = Math.min(ratio, 1f);
+
+            int finalWidth = Math.round(ratio * width);
+            int finalHeight = Math.round(ratio * height);
+            Bitmap resized = Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            resized.compress(Bitmap.CompressFormat.JPEG, 75, baos);
+            byte[] bytes = baos.toByteArray();
+            return Base64.encodeToString(bytes, Base64.NO_WRAP);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private void persistProfile(FirebaseUser user, String displayName, String avatarUrl) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("uid", user.getUid());
+        updates.put("displayName", displayName);
+        updates.put("email", user.getEmail() != null ? user.getEmail() : "");
+        updates.put("avatarUrl", avatarUrl != null ? avatarUrl : "");
+
+        FirebaseHelper.getInstance().updateUserProfile(user.getUid(), updates,
+                v -> FirebaseHelper.getInstance().updateAuthProfile(displayName, avatarUrl,
+                        v2 -> FirebaseHelper.getInstance().syncUserProfileToGems(user.getUid(), displayName,
+                                avatarUrl != null ? avatarUrl : "",
+                                v3 -> runOnUiThread(() -> {
+                                    Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                    setResult(RESULT_OK);
+                                    finish();
+                                }),
+                                e3 -> runOnUiThread(() -> showSaveError(e3.getMessage()))),
+                        e2 -> runOnUiThread(() -> showSaveError(e2.getMessage()))),
+                e -> runOnUiThread(() -> showSaveError(e.getMessage())));
+    }
+
+    private void updateAvatar(String displayName, String avatarUrl) {
+        String initial = displayName != null && !displayName.trim().isEmpty()
+                ? displayName.substring(0, 1).toUpperCase()
+                : "U";
+        tvAvatarLetter.setText(initial);
+
+        if (avatarUrl != null && !avatarUrl.trim().isEmpty()) {
+            tvAvatarLetter.setVisibility(View.GONE);
+            if (avatarUrl.startsWith("http")) {
+                Glide.with(this).load(avatarUrl).centerCrop().into(ivAvatar);
+            } else {
+                try {
+                    byte[] imageBytes = Base64.decode(avatarUrl, Base64.DEFAULT);
+                    Glide.with(this).load(imageBytes).centerCrop().into(ivAvatar);
+                } catch (Exception e) {
+                    ivAvatar.setImageDrawable(null);
+                    tvAvatarLetter.setVisibility(View.VISIBLE);
+                }
+            }
+        } else {
+            ivAvatar.setImageDrawable(null);
+            tvAvatarLetter.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private String deriveFallbackName(FirebaseUser user) {
+        if (user.getEmail() != null && user.getEmail().contains("@")) {
+            return user.getEmail().split("@")[0];
+        }
+        return "User";
+    }
+
+    private void showSaveError(String message) {
+        btnSave.setEnabled(true);
+        btnSave.setText("Save Changes");
+        Toast.makeText(this, message != null ? message : "Failed to update profile", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERM && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            openGallery();
+        } else if (requestCode == REQUEST_PERM) {
+            Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+        }
+    }
+}

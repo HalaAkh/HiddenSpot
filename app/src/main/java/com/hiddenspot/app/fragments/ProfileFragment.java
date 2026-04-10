@@ -2,9 +2,11 @@ package com.hiddenspot.app.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,16 +17,20 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.hiddenspot.app.R;
 import com.hiddenspot.app.activities.AuthActivity;
+import com.hiddenspot.app.activities.EditProfileActivity;
 import com.hiddenspot.app.adapters.PlaceAdapter;
 import com.hiddenspot.app.models.Place;
 import com.hiddenspot.app.utils.FirebaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileFragment extends Fragment {
 
@@ -33,6 +39,8 @@ public class ProfileFragment extends Fragment {
     private RecyclerView rvMyPosts;
     private LinearLayout rowEditProfile, rowRatings, rowNotifications, rowHelp;
     private com.google.android.material.button.MaterialButton btnLogout;
+    private CircleImageView ivAvatar;
+    private ImageView btnChangePhoto;
     private PlaceAdapter postsAdapter;
     private final List<Place> myPosts = new ArrayList<>();
 
@@ -53,6 +61,8 @@ public class ProfileFragment extends Fragment {
         tvStatRating     = view.findViewById(R.id.tv_stat_rating);
         rvMyPosts        = view.findViewById(R.id.rv_my_posts);
         btnLogout        = view.findViewById(R.id.btn_logout);
+        ivAvatar         = view.findViewById(R.id.iv_avatar);
+        btnChangePhoto   = view.findViewById(R.id.btn_change_photo);
         rowEditProfile   = view.findViewById(R.id.row_edit_profile);
         rowRatings       = view.findViewById(R.id.row_ratings);
         rowNotifications = view.findViewById(R.id.row_notifications);
@@ -77,18 +87,50 @@ public class ProfileFragment extends Fragment {
             startActivity(i);
         });
 
-        for (LinearLayout row : new LinearLayout[]{rowEditProfile, rowRatings, rowNotifications, rowHelp})
+        View.OnClickListener openEditProfile = v ->
+                startActivity(new Intent(requireActivity(), EditProfileActivity.class));
+        rowEditProfile.setOnClickListener(openEditProfile);
+        btnChangePhoto.setOnClickListener(openEditProfile);
+
+        for (LinearLayout row : new LinearLayout[]{rowRatings, rowNotifications, rowHelp}) {
             row.setOnClickListener(v -> Toast.makeText(requireContext(), "Coming soon", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadUserProfile();
     }
 
     private void loadUserProfile() {
         FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
         if (user == null) return;
-        String name = user.getDisplayName();
-        if (name == null || name.isEmpty())
-            name = user.getEmail() != null ? user.getEmail().split("@")[0] : "User";
-        tvUsername.setText(name);
-        tvAvatarLetter.setText(name.substring(0, 1).toUpperCase());
+
+        FirebaseHelper.getInstance().fetchUserProfile(user.getUid(), profileSnap -> {
+            String name = profileSnap.getString("displayName");
+            String avatarUrl = profileSnap.getString("avatarUrl");
+
+            if (name == null || name.trim().isEmpty()) {
+                name = user.getDisplayName();
+            }
+            if (name == null || name.trim().isEmpty()) {
+                name = user.getEmail() != null ? user.getEmail().split("@")[0] : "User";
+            }
+
+            String finalName = name;
+            String finalAvatarUrl = avatarUrl != null ? avatarUrl :
+                    (user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "");
+            requireActivity().runOnUiThread(() -> bindProfileHeader(finalName, finalAvatarUrl));
+        }, e -> {
+            String fallbackName = user.getDisplayName();
+            if (fallbackName == null || fallbackName.trim().isEmpty()) {
+                fallbackName = user.getEmail() != null ? user.getEmail().split("@")[0] : "User";
+            }
+            String avatarUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+            String finalFallbackName = fallbackName;
+            requireActivity().runOnUiThread(() -> bindProfileHeader(finalFallbackName, avatarUrl));
+        });
 
         FirebaseHelper.getInstance().fetchGemsByUser(user.getUid(), snap -> {
             myPosts.clear();
@@ -111,6 +153,28 @@ public class ProfileFragment extends Fragment {
                 tvPostsCount.setText(pl + " Posts");
             });
         }, e -> Toast.makeText(requireContext(), "Error loading posts", Toast.LENGTH_SHORT).show());
+    }
+
+    private void bindProfileHeader(String name, String avatarUrl) {
+        tvUsername.setText(name);
+        tvAvatarLetter.setText(name.substring(0, 1).toUpperCase());
+        if (avatarUrl != null && !avatarUrl.trim().isEmpty()) {
+            tvAvatarLetter.setVisibility(View.GONE);
+            if (avatarUrl.startsWith("http")) {
+                Glide.with(this).load(avatarUrl).centerCrop().into(ivAvatar);
+            } else {
+                try {
+                    byte[] imageBytes = Base64.decode(avatarUrl, Base64.DEFAULT);
+                    Glide.with(this).load(imageBytes).centerCrop().into(ivAvatar);
+                } catch (Exception e) {
+                    ivAvatar.setImageDrawable(null);
+                    tvAvatarLetter.setVisibility(View.VISIBLE);
+                }
+            }
+        } else {
+            ivAvatar.setImageDrawable(null);
+            tvAvatarLetter.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setMenuRow(LinearLayout row, String emoji, String label) {
