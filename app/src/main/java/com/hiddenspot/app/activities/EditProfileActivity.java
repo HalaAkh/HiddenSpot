@@ -44,6 +44,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private TextView tvAvatarLetter;
     private TextInputEditText etDisplayName;
     private TextInputEditText etEmail;
+    private TextInputEditText etBio;
     private MaterialButton btnSave;
     private Uri selectedImageUri;
     private String currentAvatarUrl = "";
@@ -57,6 +58,7 @@ public class EditProfileActivity extends AppCompatActivity {
         tvAvatarLetter = findViewById(R.id.tv_avatar_letter);
         etDisplayName = findViewById(R.id.et_display_name);
         etEmail = findViewById(R.id.et_email);
+        etBio = findViewById(R.id.et_bio);
         btnSave = findViewById(R.id.btn_save);
         ImageButton btnBack = findViewById(R.id.btn_back);
         ImageButton btnChangePhoto = findViewById(R.id.btn_change_photo);
@@ -81,6 +83,7 @@ public class EditProfileActivity extends AppCompatActivity {
         FirebaseHelper.getInstance().fetchUserProfile(user.getUid(), snap -> runOnUiThread(() -> {
             String displayName = snap.getString("displayName");
             String avatarUrl = snap.getString("avatarUrl");
+            String bio = snap.getString("bio");
 
             if (displayName == null || displayName.trim().isEmpty()) {
                 displayName = user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()
@@ -94,6 +97,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
             currentAvatarUrl = avatarUrl != null ? avatarUrl : "";
             etDisplayName.setText(displayName);
+            etBio.setText(bio != null ? bio : "");
             updateAvatar(displayName, currentAvatarUrl);
         }), e -> runOnUiThread(() -> {
             String fallbackName = user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()
@@ -101,6 +105,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     : deriveFallbackName(user);
             currentAvatarUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
             etDisplayName.setText(fallbackName);
+            etBio.setText("");
             updateAvatar(fallbackName, currentAvatarUrl);
         }));
     }
@@ -141,6 +146,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
         String displayName = etDisplayName.getText() != null
                 ? etDisplayName.getText().toString().trim() : "";
+        String bio = etBio.getText() != null
+                ? etBio.getText().toString().trim() : "";
         if (displayName.isEmpty()) {
             etDisplayName.setError("Display name is required");
             return;
@@ -150,9 +157,9 @@ public class EditProfileActivity extends AppCompatActivity {
         btnSave.setText("Saving...");
 
         if (selectedImageUri != null) {
-            persistProfile(user, displayName, encodeImageToBase64(selectedImageUri));
+            persistProfile(user, displayName, bio, encodeImageToBase64(selectedImageUri));
         } else {
-            persistProfile(user, displayName, currentAvatarUrl);
+            persistProfile(user, displayName, bio, currentAvatarUrl);
         }
     }
 
@@ -189,11 +196,12 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void persistProfile(FirebaseUser user, String displayName, String avatarUrl) {
+    private void persistProfile(FirebaseUser user, String displayName, String bio, String avatarUrl) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("uid", user.getUid());
         updates.put("displayName", displayName);
         updates.put("email", user.getEmail() != null ? user.getEmail() : "");
+        updates.put("bio", bio);
         updates.put("avatarUrl", avatarUrl != null ? avatarUrl : "");
 
         FirebaseHelper.getInstance().updateUserProfile(user.getUid(), updates,

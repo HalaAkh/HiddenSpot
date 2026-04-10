@@ -68,6 +68,7 @@ public class FirebaseHelper {
                     user.put("uid", uid);
                     user.put("displayName", username);
                     user.put("email", email);
+                    user.put("bio", "");
                     user.put("avatarUrl", "");
                     user.put("gemsCount", 0);
                     firebaseUser.updateProfile(new UserProfileChangeRequest.Builder()

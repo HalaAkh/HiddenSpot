@@ -144,6 +144,27 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.HiddenSpot.TextInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:startIconDrawable="@drawable/ic_settings"
+                    app:startIconTint="@color/muted_foreground">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_bio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter"
+                        android:gravity="top|start"
+                        android:hint="@string/bio_hint"
+                        android:inputType="textMultiLine"
+                        android:minLines="3"
+                        android:textSize="14sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

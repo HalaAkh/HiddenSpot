@@ -74,7 +74,7 @@
                         android:layout_width="80dp"
                         android:layout_height="80dp"
                         android:gravity="center"
-                        android:text="S"
+                        android:text=""
                         android:textColor="@color/primary_foreground"
                         android:textSize="32sp"
                         android:fontFamily="@font/poppins_bold"
@@ -104,16 +104,17 @@
                         android:id="@+id/tv_username"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sara M."
+                        android:text=""
                         android:textColor="@color/primary_foreground"
                         android:textSize="18sp"
                         android:fontFamily="@font/poppins_bold"/>
 
                     <TextView
+                        android:id="@+id/tv_bio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="@string/discovering_since"
+                        android:text=""
                         android:textColor="#CCFFFFFF"
                         android:textSize="11sp"
                         android:fontFamily="@font/inter"/>
@@ -128,16 +129,17 @@
                             android:id="@+id/tv_posts_count"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2 Posts"
+                            android:text=""
                             android:textColor="@color/primary_foreground"
                             android:textSize="12sp"
                             android:fontFamily="@font/poppins_semibold"/>
 
                         <TextView
+                            android:id="@+id/tv_favorites_count"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
-                            android:text="2 Favorites"
+                            android:text=""
                             android:textColor="@color/primary_foreground"
                             android:textSize="12sp"
                             android:fontFamily="@font/poppins_semibold"/>
@@ -175,7 +177,7 @@
                         android:src="@drawable/ic_map_pin" android:tint="@color/secondary"/>
                     <TextView android:id="@+id/tv_stat_places"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="2"
+                        android:layout_marginTop="4dp" android:text="0"
                         android:textColor="@color/foreground" android:textSize="18sp"
                         android:fontFamily="@font/poppins_bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -190,7 +192,7 @@
                         android:src="@drawable/ic_heart_filled"/>
                     <TextView android:id="@+id/tv_stat_likes"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="121"
+                        android:layout_marginTop="4dp" android:text="0"
                         android:textColor="@color/foreground" android:textSize="18sp"
                         android:fontFamily="@font/poppins_bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -205,7 +207,7 @@
                         android:src="@drawable/ic_star_filled"/>
                     <TextView android:id="@+id/tv_stat_rating"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="4.7"
+                        android:layout_marginTop="4dp" android:text="—"
                         android:textColor="@color/foreground" android:textSize="18sp"
                         android:fontFamily="@font/poppins_bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"

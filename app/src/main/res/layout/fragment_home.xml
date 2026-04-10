@@ -52,15 +52,6 @@
                         android:textSize="20sp"
                         android:fontFamily="@font/poppins_bold"/>
 
-                    <ImageButton
-                        android:id="@+id/btn_filter"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/bg_circle_white"
-                        android:src="@drawable/ic_filter"
-                        android:padding="8dp"
-                        android:tint="@color/foreground"/>
-
                 </LinearLayout>
 
                 <!-- Search Bar -->
