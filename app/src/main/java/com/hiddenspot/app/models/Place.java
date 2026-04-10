@@ -1,7 +1,13 @@
 package com.hiddenspot.app.models;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.PropertyName;
+import com.google.firebase.firestore.ServerTimestamp;
+
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class Place {
 
@@ -23,7 +29,11 @@ public class Place {
     private int upvotes;
     private int downvotes;
     private boolean isFavorited;
-    private String createdAt;
+    
+    @ServerTimestamp
+    private Timestamp createdAt;
+    
+    private boolean isVerified;
 
     public Place() {}
 
@@ -37,6 +47,7 @@ public class Place {
         this.rating = 0.0; this.ratingCount = 0;
         this.likesCount = 0; this.upvotes = 0; this.downvotes = 0;
         this.isFavorited = false;
+        this.isVerified = false;
     }
 
     public String getId() { return id; }
@@ -56,7 +67,10 @@ public class Place {
     public int getUpvotes() { return upvotes; }
     public int getDownvotes() { return downvotes; }
     public boolean isFavorited() { return isFavorited; }
-    public String getCreatedAt() { return createdAt; }
+    public Timestamp getCreatedAt() { return createdAt; }
+
+    @PropertyName("isVerified")
+    public boolean isVerified() { return isVerified; }
 
     public void setId(String id) { this.id = id; }
     public void setName(String name) { this.name = name; }
@@ -75,11 +89,20 @@ public class Place {
     public void setUpvotes(int upvotes) { this.upvotes = upvotes; }
     public void setDownvotes(int downvotes) { this.downvotes = downvotes; }
     public void setFavorited(boolean favorited) { isFavorited = favorited; }
-    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    @PropertyName("isVerified")
+    public void setVerified(boolean verified) { isVerified = verified; }
 
     public String getFirstImage() {
         if (images != null && !images.isEmpty()) return images.get(0);
         return "";
+    }
+
+    public String getFormattedDate() {
+        if (createdAt == null) return "Recent";
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+        return sdf.format(createdAt.toDate());
     }
 
     public String getCategoryDisplay() {
