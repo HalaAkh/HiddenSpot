@@ -204,14 +204,14 @@ public class ProfileFragment extends Fragment {
                     for (DocumentSnapshot doc : snap.getDocuments()) {
                         Place p = doc.toObject(Place.class);
                         if (p != null) {
-                            p.setId(doc.getId());
-                            p.setFavorited(savedIds.contains(doc.getId()));
-                            myPosts.add(p);
-                            likes += p.getLikesCount();
-                            if (p.getRating() > 0) {
-                                totalRating += p.getRating();
-                                ratedCount++;
-                            }
+                    p.setId(doc.getId());
+                    p.setFavorited(savedIds.contains(doc.getId()));
+                    myPosts.add(p);
+                    likes += p.getUpvotes();
+                    if (p.getRating() > 0) {
+                        totalRating += p.getRating();
+                        ratedCount++;
+                    }
                         }
                     }
 

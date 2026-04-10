@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.hiddenspot.app.models.Place;
@@ -30,6 +31,7 @@ public class FirebaseHelper {
     public static final String COLLECTION_USERS   = "users";
     public static final String COLLECTION_SAVES   = "saves";
     public static final String COLLECTION_REVIEWS = "reviews";
+    public static final String SUBCOLLECTION_VOTES = "votes";
 
     private FirebaseHelper() {
         db      = FirebaseFirestore.getInstance();
@@ -124,17 +126,51 @@ public class FirebaseHelper {
     }
 
     // VOTES
-    public void upvoteGem(String gemId) {
-        db.collection(COLLECTION_GEMS).document(gemId).update("upvotes", FieldValue.increment(1));
+    public void fetchGemVote(String gemId, String userId,
+                             OnSuccessListener<DocumentSnapshot> onSuccess,
+                             OnFailureListener onFailure) {
+        db.collection(COLLECTION_GEMS).document(gemId)
+                .collection(SUBCOLLECTION_VOTES).document(userId)
+                .get().addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
     }
-    public void removeUpvote(String gemId) {
-        db.collection(COLLECTION_GEMS).document(gemId).update("upvotes", FieldValue.increment(-1));
-    }
-    public void downvoteGem(String gemId) {
-        db.collection(COLLECTION_GEMS).document(gemId).update("downvotes", FieldValue.increment(1));
-    }
-    public void removeDownvote(String gemId) {
-        db.collection(COLLECTION_GEMS).document(gemId).update("downvotes", FieldValue.increment(-1));
+
+    public void setGemVote(String gemId, String userId, String newVote,
+                           OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        DocumentReference gemRef = db.collection(COLLECTION_GEMS).document(gemId);
+        DocumentReference voteRef = gemRef.collection(SUBCOLLECTION_VOTES).document(userId);
+
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentSnapshot gemSnap = transaction.get(gemRef);
+            DocumentSnapshot voteSnap = transaction.get(voteRef);
+
+            String currentVote = voteSnap.exists() ? voteSnap.getString("value") : null;
+            long upvotes = gemSnap.contains("upvotes") && gemSnap.getLong("upvotes") != null
+                    ? gemSnap.getLong("upvotes") : 0L;
+            long downvotes = gemSnap.contains("downvotes") && gemSnap.getLong("downvotes") != null
+                    ? gemSnap.getLong("downvotes") : 0L;
+
+            if ("upvote".equals(currentVote)) upvotes = Math.max(0L, upvotes - 1L);
+            if ("downvote".equals(currentVote)) downvotes = Math.max(0L, downvotes - 1L);
+
+            if ("upvote".equals(newVote)) upvotes += 1L;
+            if ("downvote".equals(newVote)) downvotes += 1L;
+
+            Map<String, Object> gemUpdates = new HashMap<>();
+            gemUpdates.put("upvotes", upvotes);
+            gemUpdates.put("downvotes", downvotes);
+            transaction.update(gemRef, gemUpdates);
+
+            if (newVote == null || newVote.isEmpty()) {
+                transaction.delete(voteRef);
+            } else {
+                Map<String, Object> voteData = new HashMap<>();
+                voteData.put("userId", userId);
+                voteData.put("value", newVote);
+                voteData.put("updatedAt", FieldValue.serverTimestamp());
+                transaction.set(voteRef, voteData);
+            }
+            return null;
+        }).addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
     }
 
     // SAVES

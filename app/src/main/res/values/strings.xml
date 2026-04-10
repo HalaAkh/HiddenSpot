@@ -77,7 +77,6 @@
     <string name="bio_hint">Add a short bio</string>
     <string name="change_photo">Change Photo</string>
     <string name="save_changes">Save Changes</string>
-    <string name="email_edit_note">Email is shown here for reference. This screen updates your public profile name and photo.</string>
     <string name="posts_count_format">%d Posts</string>
     <string name="favorites_count_format">%d Favorites</string>
 

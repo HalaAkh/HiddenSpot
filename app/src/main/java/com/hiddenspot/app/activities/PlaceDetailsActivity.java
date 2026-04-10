@@ -1,6 +1,7 @@
 package com.hiddenspot.app.activities;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
@@ -56,6 +57,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         bindViews();
         populateFromIntent();
         setupListeners();
+        loadCurrentVoteState();
     }
 
     private void bindViews() {
@@ -186,20 +188,35 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     }
 
     private void handleVote(String type) {
-        if (placeId == null) return;
-        FirebaseHelper fb = FirebaseHelper.getInstance();
-        if (voteState.equals(type)) {
-            if (type.equals("up")) { upvotes--;   fb.removeUpvote(placeId);   }
-            else                   { downvotes--; fb.removeDownvote(placeId); }
-            voteState = "none";
-        } else {
-            if (voteState.equals("up"))   { upvotes--;   fb.removeUpvote(placeId);   }
-            if (voteState.equals("down")) { downvotes--; fb.removeDownvote(placeId); }
-            if (type.equals("up"))   { upvotes++;   fb.upvoteGem(placeId);   }
-            else                     { downvotes++; fb.downvoteGem(placeId); }
-            voteState = type;
-        }
+        String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+        if (placeId == null || uid == null) return;
+
+        String previousVoteState = voteState;
+        int previousUpvotes = upvotes;
+        int previousDownvotes = downvotes;
+        String newVoteState = voteState.equals(type) ? "none" : type;
+        applyVoteStateChange(voteState, newVoteState);
         updateVoteButtons();
+        btnUpvote.setEnabled(false);
+        btnDownvote.setEnabled(false);
+
+        FirebaseHelper.getInstance().setGemVote(placeId, uid,
+                "none".equals(newVoteState) ? null : toVoteValue(newVoteState),
+                v -> runOnUiThread(() -> {
+                    btnUpvote.setEnabled(true);
+                    btnDownvote.setEnabled(true);
+                }),
+                e -> runOnUiThread(() -> {
+                    voteState = previousVoteState;
+                    upvotes = previousUpvotes;
+                    downvotes = previousDownvotes;
+                    updateVoteButtons();
+                    btnUpvote.setEnabled(true);
+                    btnDownvote.setEnabled(true);
+                    Toast.makeText(this, e.getMessage() != null ? e.getMessage() : "Failed to update vote",
+                            Toast.LENGTH_SHORT).show();
+                }));
     }
 
     private void updateVoteButtons() {
@@ -208,21 +225,55 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         if (voteState.equals("up")) {
             btnUpvote.setBackgroundResource(R.drawable.bg_vote_up_active);
             btnUpvote.setTextColor(getResources().getColor(R.color.upvote_green, null));
+            btnUpvote.setIconTint(ColorStateList.valueOf(
+                    getResources().getColor(R.color.upvote_green, null)));
         } else {
             btnUpvote.setBackgroundResource(R.drawable.bg_chip_inactive);
             btnUpvote.setTextColor(getResources().getColor(R.color.muted_foreground, null));
+            btnUpvote.setIconTint(ColorStateList.valueOf(
+                    getResources().getColor(R.color.muted_foreground, null)));
         }
         if (voteState.equals("down")) {
             btnDownvote.setBackgroundResource(R.drawable.bg_vote_down_active);
             btnDownvote.setTextColor(getResources().getColor(R.color.downvote_red, null));
+            btnDownvote.setIconTint(ColorStateList.valueOf(
+                    getResources().getColor(R.color.downvote_red, null)));
         } else {
             btnDownvote.setBackgroundResource(R.drawable.bg_chip_inactive);
             btnDownvote.setTextColor(getResources().getColor(R.color.muted_foreground, null));
+            btnDownvote.setIconTint(ColorStateList.valueOf(
+                    getResources().getColor(R.color.muted_foreground, null)));
         }
     }
 
     private void updateFavoriteIcon() {
         btnFavorite.setImageResource(isFavorited ? R.drawable.ic_heart_filled : R.drawable.ic_heart);
+    }
+
+    private void loadCurrentVoteState() {
+        String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+        if (placeId == null || uid == null) return;
+
+        FirebaseHelper.getInstance().fetchGemVote(placeId, uid, snap -> runOnUiThread(() -> {
+            String storedVote = snap.getString("value");
+            if ("upvote".equals(storedVote)) voteState = "up";
+            else if ("downvote".equals(storedVote)) voteState = "down";
+            else voteState = "none";
+            updateVoteButtons();
+        }), e -> runOnUiThread(this::updateVoteButtons));
+    }
+
+    private void applyVoteStateChange(String oldState, String newState) {
+        if ("up".equals(oldState)) upvotes = Math.max(0, upvotes - 1);
+        if ("down".equals(oldState)) downvotes = Math.max(0, downvotes - 1);
+        if ("up".equals(newState)) upvotes += 1;
+        if ("down".equals(newState)) downvotes += 1;
+        voteState = newState;
+    }
+
+    private String toVoteValue(String state) {
+        return "up".equals(state) ? "upvote" : "downvote";
     }
 
     private void updatePosterAvatar(String posterAvatar) {
