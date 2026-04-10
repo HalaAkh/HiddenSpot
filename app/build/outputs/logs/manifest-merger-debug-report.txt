@@ -215,9 +215,9 @@ MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\us
 	android:label
 		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:15:9-41
 	android:roundIcon
-		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:16:9-54
+		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:16:9-43
 	android:icon
-		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:14:9-43
+		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:14:9-38
 	android:allowBackup
 		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:13:9-35
 	android:theme

@@ -69,12 +69,12 @@
 39-->[androidx.core:core:1.13.0] C:\Users\user\.gradle\caches\9.0-milestone-1\transforms\999d1dad0555da8ad2b6892a3f640d7d\transformed\core-1.13.0\AndroidManifest.xml:28:18-86
 40        android:debuggable="true"
 41        android:extractNativeLibs="false"
-42        android:icon="@mipmap/ic_launcher"
-42-->C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:14:9-43
+42        android:icon="@drawable/logo"
+42-->C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:14:9-38
 43        android:label="@string/app_name"
 43-->C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:15:9-41
-44        android:roundIcon="@mipmap/ic_launcher_round"
-44-->C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:16:9-54
+44        android:roundIcon="@drawable/logo"
+44-->C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:16:9-43
 45        android:supportsRtl="true"
 45-->C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:17:9-35
 46        android:testOnly="true"
