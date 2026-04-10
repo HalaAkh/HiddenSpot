@@ -92,8 +92,8 @@
     <string name="phone_hint">+961 …</string>
     <string name="description_label">Description</string>
     <string name="description_hint">What makes this place special? Tell others why they should visit…</string>
-    <string name="submit_btn">Share This Hidden Gem ✨</string>
-    <string name="submit_success">Place submitted successfully! 🎉</string>
+    <string name="submit_btn">Share This Hidden Gem</string>
+    <string name="submit_success">Place submitted successfully!</string>
 
     <!-- Categories -->
     <string-array name="categories">

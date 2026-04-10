@@ -2,6 +2,7 @@ package com.hiddenspot.app.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,9 +84,24 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
         }
 
         void bind(Place place, int position) {
-            Glide.with(context).load(place.getFirstImage())
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .placeholder(R.color.muted).centerCrop().into(ivPlace);
+            String imgData = place.getFirstImage();
+            if (imgData != null && !imgData.startsWith("http") && !imgData.isEmpty()) {
+                try {
+                    byte[] imageBytes = Base64.decode(imgData, Base64.DEFAULT);
+                    Glide.with(context)
+                            .load(imageBytes)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .placeholder(R.color.muted)
+                            .centerCrop()
+                            .into(ivPlace);
+                } catch (Exception e) {
+                    ivPlace.setImageResource(R.color.muted);
+                }
+            } else {
+                Glide.with(context).load(imgData)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .placeholder(R.color.muted).centerCrop().into(ivPlace);
+            }
 
             tvCategoryBadge.setText(place.getCategoryDisplay());
             tvCategoryBadge.setBackgroundColor(getCategoryColor(place.getCategory()));

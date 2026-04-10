@@ -95,14 +95,15 @@ public class FirebaseHelper {
         data.put("images", place.getImages());
         data.put("userId", place.getUserId());
         data.put("userName", place.getUserName());
-        data.put("rating", 0.0);
-        data.put("ratingCount", 0);
-        data.put("likesCount", 0);
-        data.put("upvotes", 0);
-        data.put("downvotes", 0);
+        data.put("rating", place.getRating());
+        data.put("ratingCount", place.getRatingCount());
+        data.put("likesCount", place.getLikesCount());
+        data.put("upvotes", place.getUpvotes());
+        data.put("downvotes", place.getDownvotes());
         data.put("status", "pending");
         data.put("isVerified", false);
         data.put("createdAt", FieldValue.serverTimestamp());
+        
         db.collection(COLLECTION_GEMS).add(data)
                 .addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
     }
@@ -147,6 +148,6 @@ public class FirebaseHelper {
 
     // STORAGE
     public StorageReference getImageUploadRef() {
-        return storage.getReference().child("gem_images/" + UUID.randomUUID() + ".jpg");
+        return storage.getReference().child("gem_images/" + UUID.randomUUID().toString() + ".jpg");
     }
 }

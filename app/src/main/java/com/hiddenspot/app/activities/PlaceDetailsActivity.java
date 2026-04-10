@@ -3,6 +3,7 @@ package com.hiddenspot.app.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -94,9 +95,24 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         String poster   = intent.getStringExtra(EXTRA_POSTER_NAME);
         String date     = intent.getStringExtra(EXTRA_POSTED_DATE);
 
-        if (image != null && !image.isEmpty())
-            Glide.with(this).load(image).transition(DrawableTransitionOptions.withCrossFade())
-                    .centerCrop().into(ivHero);
+        if (image != null && !image.isEmpty()) {
+            if (!image.startsWith("http")) {
+                try {
+                    byte[] imageBytes = Base64.decode(image, Base64.DEFAULT);
+                    Glide.with(this)
+                            .load(imageBytes)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .centerCrop()
+                            .into(ivHero);
+                } catch (Exception e) {
+                    ivHero.setImageResource(R.color.muted);
+                }
+            } else {
+                Glide.with(this).load(image)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .centerCrop().into(ivHero);
+            }
+        }
 
         tvCategoryBadge.setText(getCategoryDisplay(category));
         tvCategoryBadge.setBackgroundColor(getCategoryColor(category));

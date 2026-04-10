@@ -3,10 +3,13 @@ package com.hiddenspot.app.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,11 +29,12 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.storage.StorageReference;
 import com.hiddenspot.app.R;
 import com.hiddenspot.app.models.Place;
 import com.hiddenspot.app.utils.FirebaseHelper;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +50,9 @@ public class AddPlaceActivity extends AppCompatActivity {
     private ImageButton btnBack;
     private LinearLayout btnUploadGallery, btnOpenCamera;
     private ImageView ivPreview;
+    
     private Uri selectedImageUri = null;
+    private Bitmap capturedBitmap = null;
     private String selectedCategory = "Restaurant";
 
     private static final String[] CATEGORIES = {
@@ -126,11 +132,21 @@ public class AddPlaceActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && data != null) {
-            selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-                Glide.with(this).load(selectedImageUri).centerCrop().into(ivPreview);
-                ivPreview.setVisibility(View.VISIBLE);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_GALLERY && data != null) {
+                selectedImageUri = data.getData();
+                capturedBitmap = null;
+                if (selectedImageUri != null) {
+                    Glide.with(this).load(selectedImageUri).centerCrop().into(ivPreview);
+                    ivPreview.setVisibility(View.VISIBLE);
+                }
+            } else if (requestCode == REQUEST_CAMERA && data != null && data.getExtras() != null) {
+                capturedBitmap = (Bitmap) data.getExtras().get("data");
+                selectedImageUri = null;
+                if (capturedBitmap != null) {
+                    ivPreview.setImageBitmap(capturedBitmap);
+                    ivPreview.setVisibility(View.VISIBLE);
+                }
             }
         }
     }
@@ -139,44 +155,84 @@ public class AddPlaceActivity extends AppCompatActivity {
         String name = getText(etPlaceName), city = getText(etCity);
         String address = getText(etAddress), phone = getText(etPhone);
         String desc = getText(etDescription);
+        
         if (name.isEmpty() || city.isEmpty() || address.isEmpty() || desc.isEmpty()) {
             Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
+        
         FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
-        if (user == null) { Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show(); return; }
+        if (user == null) {
+            Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         btnSubmit.setEnabled(false);
-        btnSubmit.setText("Submitting…");
+        btnSubmit.setText("Processing Image...");
 
+        String base64Image = "";
         if (selectedImageUri != null) {
-            StorageReference ref = FirebaseHelper.getInstance().getImageUploadRef();
-            ref.putFile(selectedImageUri)
-                    .addOnSuccessListener(snap -> ref.getDownloadUrl()
-                            .addOnSuccessListener(uri -> savePlace(name, city, address, phone, desc, user, uri.toString()))
-                            .addOnFailureListener(e -> savePlace(name, city, address, phone, desc, user, "")))
-                    .addOnFailureListener(e -> savePlace(name, city, address, phone, desc, user, ""));
-        } else {
-            savePlace(name, city, address, phone, desc, user, "");
+            base64Image = encodeImageToBase64(selectedImageUri);
+        } else if (capturedBitmap != null) {
+            base64Image = encodeBitmapToBase64(capturedBitmap);
+        }
+
+        savePlace(name, city, address, phone, desc, user, base64Image);
+    }
+
+    private String encodeImageToBase64(Uri uri) {
+        try {
+            InputStream is = getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(is);
+            if (is != null) is.close();
+            return encodeBitmapToBase64(bitmap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private String encodeBitmapToBase64(Bitmap bitmap) {
+        try {
+            // Resize to max 600px to keep Firestore document size small
+            int maxDimension = 600;
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            float ratio = Math.min((float) maxDimension / width, (float) maxDimension / height);
+            
+            int finalWidth = Math.round(ratio * width);
+            int finalHeight = Math.round(ratio * height);
+            Bitmap resized = Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            resized.compress(Bitmap.CompressFormat.JPEG, 70, baos); // 70% quality
+            byte[] bytes = baos.toByteArray();
+            return Base64.encodeToString(bytes, Base64.NO_WRAP);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
         }
     }
 
     private void savePlace(String name, String city, String address, String phone,
-                           String desc, FirebaseUser user, String imageUrl) {
+                           String desc, FirebaseUser user, String imageData) {
+        btnSubmit.setText("Saving to Cloud...");
         List<String> images = new ArrayList<>();
-        if (!imageUrl.isEmpty()) images.add(imageUrl);
+        if (!imageData.isEmpty()) images.add(imageData);
         String displayName = user.getDisplayName() != null ? user.getDisplayName() : "Anonymous";
+        
         Place place = new Place(name, city, address, phone, desc,
                 selectedCategory, images, user.getUid(), displayName);
+                
         FirebaseHelper.getInstance().addGem(place,
                 docRef -> runOnUiThread(() -> {
-                    Toast.makeText(this, getString(R.string.submit_success), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Gem added successfully!", Toast.LENGTH_LONG).show();
                     finish();
                 }),
                 e -> runOnUiThread(() -> {
                     btnSubmit.setEnabled(true);
-                    btnSubmit.setText(getString(R.string.submit_btn));
-                    Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    btnSubmit.setText("Submit Gem");
+                    Toast.makeText(this, "Database Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }));
     }
 
