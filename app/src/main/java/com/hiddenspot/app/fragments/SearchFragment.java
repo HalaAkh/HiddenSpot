@@ -27,8 +27,10 @@ import com.hiddenspot.app.models.Place;
 import com.hiddenspot.app.utils.FirebaseHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class SearchFragment extends Fragment {
 
@@ -78,6 +80,17 @@ public class SearchFragment extends Fragment {
         });
 
         buildChips();
+        adapter.setOnFavoriteClickListener((place, pos) -> {
+            boolean newState = !place.isFavorited();
+            place.setFavorited(newState);
+            adapter.notifyItemChanged(pos);
+            String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                    ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+            if (uid != null && place.getId() != null) {
+                if (newState) FirebaseHelper.getInstance().saveGem(uid, place.getId(), v -> {}, e -> {});
+                else FirebaseHelper.getInstance().unsaveGem(uid, place.getId(), v -> {}, e -> {});
+            }
+        });
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) { applyFilters(); }
@@ -86,12 +99,41 @@ public class SearchFragment extends Fragment {
         loadPlaces();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadPlaces();
+    }
+
     private void loadPlaces() {
+        String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+
+        if (uid == null) {
+            fetchPlacesWithFavoriteIds(new HashSet<>());
+            return;
+        }
+
+        FirebaseHelper.getInstance().fetchSavedGemIds(uid, savesSnap -> {
+            Set<String> favoriteIds = new HashSet<>();
+            for (com.google.firebase.firestore.DocumentSnapshot doc : savesSnap.getDocuments()) {
+                String gemId = doc.getString("gemId");
+                if (gemId != null) favoriteIds.add(gemId);
+            }
+            fetchPlacesWithFavoriteIds(favoriteIds);
+        }, e -> fetchPlacesWithFavoriteIds(new HashSet<>()));
+    }
+
+    private void fetchPlacesWithFavoriteIds(Set<String> favoriteIds) {
         FirebaseHelper.getInstance().fetchAllGems(snap -> {
             allPlaces.clear();
             for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
                 Place p = doc.toObject(Place.class);
-                if (p != null) { p.setId(doc.getId()); allPlaces.add(p); }
+                if (p != null) {
+                    p.setId(doc.getId());
+                    p.setFavorited(favoriteIds.contains(doc.getId()));
+                    allPlaces.add(p);
+                }
             }
             applyFilters();
         }, e -> Toast.makeText(requireContext(), "Error loading", Toast.LENGTH_SHORT).show());

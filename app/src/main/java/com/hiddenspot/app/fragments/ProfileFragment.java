@@ -28,8 +28,10 @@ import com.hiddenspot.app.models.Place;
 import com.hiddenspot.app.utils.FirebaseHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -90,6 +92,25 @@ public class ProfileFragment extends Fragment {
         rvMyPosts.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMyPosts.setAdapter(postsAdapter);
         rvMyPosts.setNestedScrollingEnabled(false);
+        postsAdapter.setOnFavoriteClickListener((place, pos) -> {
+            String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                    ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+            if (uid == null || place.getId() == null) return;
+
+            boolean newState = !place.isFavorited();
+            place.setFavorited(newState);
+            postsAdapter.notifyItemChanged(pos);
+
+            if (newState) {
+                FirebaseHelper.getInstance().saveGem(uid, place.getId(),
+                        v -> requireActivity().runOnUiThread(this::loadUserProfile),
+                        e -> requireActivity().runOnUiThread(this::loadUserProfile));
+            } else {
+                FirebaseHelper.getInstance().unsaveGem(uid, place.getId(),
+                        v -> requireActivity().runOnUiThread(this::loadUserProfile),
+                        e -> requireActivity().runOnUiThread(this::loadUserProfile));
+            }
+        });
 
         resetProfileUi();
         loadUserProfile();
@@ -153,46 +174,65 @@ public class ProfileFragment extends Fragment {
                     bindProfileHeader(finalFallbackName, "", avatarUrl));
         });
 
-        FirebaseHelper.getInstance().fetchSavedGemIds(user.getUid(), snap -> {
-            final int favorites = snap.size();
-            requireActivity().runOnUiThread(() ->
-                    tvFavoritesCount.setText(getString(R.string.favorites_count_format, favorites)));
-        }, e -> requireActivity().runOnUiThread(() ->
-                tvFavoritesCount.setText(getString(R.string.favorites_count_format, 0))));
-
-        FirebaseHelper.getInstance().fetchGemsByUser(user.getUid(), snap -> {
-            myPosts.clear();
-            int likes = 0;
-            double totalRating = 0;
-            int ratedCount = 0;
-
-            for (DocumentSnapshot doc : snap.getDocuments()) {
-                Place p = doc.toObject(Place.class);
-                if (p != null) {
-                    p.setId(doc.getId());
-                    myPosts.add(p);
-                    likes += p.getLikesCount();
-                    if (p.getRating() > 0) {
-                        totalRating += p.getRating();
-                        ratedCount++;
-                    }
-                }
+        FirebaseHelper.getInstance().fetchSavedGemIds(user.getUid(), savesSnap -> {
+            Set<String> savedIds = new HashSet<>();
+            for (DocumentSnapshot doc : savesSnap.getDocuments()) {
+                String gemId = doc.getString("gemId");
+                if (gemId != null) savedIds.add(gemId);
             }
 
-            final int posts = myPosts.size();
-            final int totalLikes = likes;
-            final int totalRated = ratedCount;
-            final double avg = totalRated > 0 ? totalRating / totalRated : 0;
+            FirebaseHelper.getInstance().fetchAllGems(gemsSnap -> {
+                Set<String> validGemIds = new HashSet<>();
+                for (DocumentSnapshot doc : gemsSnap.getDocuments()) {
+                    validGemIds.add(doc.getId());
+                }
 
-            requireActivity().runOnUiThread(() -> {
-                postsAdapter.updatePlaces(myPosts);
-                tvStatPlaces.setText(String.valueOf(posts));
-                tvStatLikes.setText(String.valueOf(totalLikes));
-                tvStatRating.setText(totalRated > 0
-                        ? String.format(Locale.getDefault(), "%.1f", avg) : "—");
-                tvPostsCount.setText(getString(R.string.posts_count_format, posts));
-            });
-        }, e -> Toast.makeText(requireContext(), "Error loading posts", Toast.LENGTH_SHORT).show());
+                int favorites = 0;
+                for (String savedId : savedIds) {
+                    if (validGemIds.contains(savedId)) favorites++;
+                }
+                final int finalFavorites = favorites;
+                requireActivity().runOnUiThread(() ->
+                        tvFavoritesCount.setText(getString(R.string.favorites_count_format, finalFavorites)));
+
+                FirebaseHelper.getInstance().fetchGemsByUser(user.getUid(), snap -> {
+                    myPosts.clear();
+                    int likes = 0;
+                    double totalRating = 0;
+                    int ratedCount = 0;
+
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        Place p = doc.toObject(Place.class);
+                        if (p != null) {
+                            p.setId(doc.getId());
+                            p.setFavorited(savedIds.contains(doc.getId()));
+                            myPosts.add(p);
+                            likes += p.getLikesCount();
+                            if (p.getRating() > 0) {
+                                totalRating += p.getRating();
+                                ratedCount++;
+                            }
+                        }
+                    }
+
+                    final int posts = myPosts.size();
+                    final int totalLikes = likes;
+                    final int totalRated = ratedCount;
+                    final double avg = totalRated > 0 ? totalRating / totalRated : 0;
+
+                    requireActivity().runOnUiThread(() -> {
+                        postsAdapter.updatePlaces(myPosts);
+                        tvStatPlaces.setText(String.valueOf(posts));
+                        tvStatLikes.setText(String.valueOf(totalLikes));
+                        tvStatRating.setText(totalRated > 0
+                                ? String.format(Locale.getDefault(), "%.1f", avg) : "—");
+                        tvPostsCount.setText(getString(R.string.posts_count_format, posts));
+                    });
+                }, e -> Toast.makeText(requireContext(), "Error loading posts", Toast.LENGTH_SHORT).show());
+            }, e -> requireActivity().runOnUiThread(() ->
+                    tvFavoritesCount.setText(getString(R.string.favorites_count_format, 0))));
+        }, e -> requireActivity().runOnUiThread(() ->
+                tvFavoritesCount.setText(getString(R.string.favorites_count_format, 0))));
     }
 
     private void resetProfileUi() {

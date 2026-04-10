@@ -24,8 +24,10 @@ import com.hiddenspot.app.models.Place;
 import com.hiddenspot.app.utils.FirebaseHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class HomeFragment extends Fragment {
 
@@ -86,12 +88,41 @@ public class HomeFragment extends Fragment {
         loadPlaces();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadPlaces();
+    }
+
     private void loadPlaces() {
+        String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+
+        if (uid == null) {
+            fetchPlacesWithFavoriteIds(new HashSet<>());
+            return;
+        }
+
+        FirebaseHelper.getInstance().fetchSavedGemIds(uid, savesSnap -> {
+            Set<String> favoriteIds = new HashSet<>();
+            for (com.google.firebase.firestore.DocumentSnapshot doc : savesSnap.getDocuments()) {
+                String gemId = doc.getString("gemId");
+                if (gemId != null) favoriteIds.add(gemId);
+            }
+            fetchPlacesWithFavoriteIds(favoriteIds);
+        }, e -> fetchPlacesWithFavoriteIds(new HashSet<>()));
+    }
+
+    private void fetchPlacesWithFavoriteIds(Set<String> favoriteIds) {
         FirebaseHelper.getInstance().fetchAllGems(snap -> {
             allPlaces.clear();
             for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
                 Place p = doc.toObject(Place.class);
-                if (p != null) { p.setId(doc.getId()); allPlaces.add(p); }
+                if (p != null) {
+                    p.setId(doc.getId());
+                    p.setFavorited(favoriteIds.contains(doc.getId()));
+                    allPlaces.add(p);
+                }
             }
             applyFilters(etSearch.getText() != null ? etSearch.getText().toString() : "");
         }, e -> Toast.makeText(requireContext(), "Failed to load places", Toast.LENGTH_SHORT).show());
