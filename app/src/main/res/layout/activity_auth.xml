@@ -152,68 +152,6 @@
                 android:backgroundTint="@color/primary"
                 android:textColor="@color/primary_foreground"/>
 
-            <!-- Divider -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1"
-                    android:background="@color/border_color"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="12dp"
-                    android:layout_marginRight="12dp"
-                    android:text="@string/or_continue_with"
-                    android:textColor="@color/muted_foreground"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/inter"/>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1"
-                    android:background="@color/border_color"/>
-
-            </LinearLayout>
-
-            <!-- Social Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_google"
-                    style="@style/Widget.HiddenSpot.Button.Outline"
-                    android:layout_width="0dp"
-                    android:layout_height="52dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="🔵 Google"
-                    android:textSize="13sp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_apple"
-                    style="@style/Widget.HiddenSpot.Button.Outline"
-                    android:layout_width="0dp"
-                    android:layout_height="52dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    android:text="🍎 Apple"
-                    android:textSize="13sp"/>
-
-            </LinearLayout>
-
             <!-- Toggle sign-in / sign-up -->
             <LinearLayout
                 android:layout_width="match_parent"

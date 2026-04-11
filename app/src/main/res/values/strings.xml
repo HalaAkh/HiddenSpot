@@ -69,11 +69,16 @@
     <string name="avg_rating_label">Avg Rating</string>
     <string name="my_posts">My Posts</string>
     <string name="sign_out">Sign Out</string>
-    <string name="discovering_since">Discovering hidden gems since 2025</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="my_ratings">My Ratings</string>
     <string name="notifications">Notifications</string>
     <string name="help_support">Help &amp; Support</string>
+    <string name="display_name">Display Name</string>
+    <string name="bio_hint">Add a short bio</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="posts_count_format">%d Posts</string>
+    <string name="favorites_count_format">%d Favorites</string>
 
     <!-- Add Place -->
     <string name="add_new_place">Add New Place</string>

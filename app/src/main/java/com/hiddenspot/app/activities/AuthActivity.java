@@ -66,10 +66,6 @@ public class AuthActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show());
         });
 
-        findViewById(R.id.btn_google).setOnClickListener(v ->
-                Toast.makeText(this, "Google sign-in coming soon", Toast.LENGTH_SHORT).show());
-        findViewById(R.id.btn_apple).setOnClickListener(v ->
-                Toast.makeText(this, "Apple sign-in coming soon", Toast.LENGTH_SHORT).show());
     }
 
     private void toggleMode() {

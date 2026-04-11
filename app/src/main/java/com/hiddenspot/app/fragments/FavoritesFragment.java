@@ -49,6 +49,22 @@ public class FavoritesFragment extends Fragment {
         adapter = new PlaceAdapter(requireContext(), favoritesList);
         rvFavorites.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvFavorites.setAdapter(adapter);
+        adapter.setOnFavoriteClickListener((place, pos) -> {
+            String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                    ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+            if (uid == null || place.getId() == null) return;
+
+            FirebaseHelper.getInstance().unsaveGem(uid, place.getId(),
+                    v -> requireActivity().runOnUiThread(this::loadFavorites),
+                    e -> requireActivity().runOnUiThread(() ->
+                            loadFavorites()));
+        });
+        loadFavorites();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         loadFavorites();
     }
 
