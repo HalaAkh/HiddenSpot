@@ -33,6 +33,7 @@ import java.util.List;
 public class PlaceDetailsActivity extends AppCompatActivity {
 
     // ── Intent extras (unchanged) ────────────────────────────────────────────
+    public static final String EXTRA_POSTER_AVATAR   = "poster_avatar";
     public static final String EXTRA_PLACE_ID        = "place_id";
     public static final String EXTRA_PLACE_NAME      = "place_name";
     public static final String EXTRA_PLACE_IMAGE     = "place_image";
