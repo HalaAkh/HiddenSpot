@@ -27,9 +27,15 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
     private final Context context;
     private List<Place> places;
     private OnFavoriteClickListener favoriteListener;
+    private OnDeleteClickListener deleteClickListener;
+    private boolean showDeleteButton;
 
     public interface OnFavoriteClickListener {
         void onFavoriteClick(Place place, int position);
+    }
+
+    public interface OnDeleteClickListener {
+        void onDeleteClick(Place place, int position);
     }
 
     public PlaceAdapter(Context context, List<Place> places) {
@@ -39,6 +45,14 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
 
     public void setOnFavoriteClickListener(OnFavoriteClickListener listener) {
         this.favoriteListener = listener;
+    }
+
+    public void setOnDeleteClickListener(OnDeleteClickListener listener) {
+        this.deleteClickListener = listener;
+    }
+
+    public void setShowDeleteButton(boolean showDeleteButton) {
+        this.showDeleteButton = showDeleteButton;
     }
 
     public void updatePlaces(List<Place> newPlaces) {
@@ -66,7 +80,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
         final ImageView ivPlace;
         final TextView tvCategoryBadge, tvPlaceName, tvCity, tvDescription;
         final TextView tvRating, tvRatingCount, tvUpvotes, tvDownvotes;
-        final ImageButton btnFavorite;
+        final ImageButton btnFavorite, btnDeletePost;
 
         PlaceViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -74,6 +88,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
             ivPlace         = itemView.findViewById(R.id.iv_place);
             tvCategoryBadge = itemView.findViewById(R.id.tv_category_badge);
             btnFavorite     = itemView.findViewById(R.id.btn_favorite);
+            btnDeletePost   = itemView.findViewById(R.id.btn_delete_post);
             tvPlaceName     = itemView.findViewById(R.id.tv_place_name);
             tvCity          = itemView.findViewById(R.id.tv_city);
             tvDescription   = itemView.findViewById(R.id.tv_description);
@@ -114,29 +129,21 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
             tvRatingCount.setText("(" + place.getRatingCount() + ")");
             tvUpvotes.setText(String.valueOf(place.getUpvotes()));
             tvDownvotes.setText(String.valueOf(place.getDownvotes()));
+            btnDeletePost.setVisibility(showDeleteButton ? View.VISIBLE : View.GONE);
+            btnFavorite.setVisibility(showDeleteButton ? View.GONE : View.VISIBLE);
 
             cardView.setOnClickListener(v -> {
-                Intent i = new Intent(context, PlaceDetailsActivity.class);
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_ID,        place.getId());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_NAME,      place.getName());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_IMAGE,     place.getFirstImage());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_CITY,      place.getCity());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_ADDRESS,   place.getAddress());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_PHONE,     place.getPhone());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_DESC,      place.getDescription());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_CATEGORY,  place.getCategory());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_RATING,    place.getRating());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_UPVOTES,   place.getUpvotes());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_DOWNVOTES, place.getDownvotes());
-                i.putExtra(PlaceDetailsActivity.EXTRA_PLACE_FAVORITED, place.isFavorited());
-                i.putExtra(PlaceDetailsActivity.EXTRA_POSTER_NAME,     place.getUserName());
-                i.putExtra(PlaceDetailsActivity.EXTRA_POSTER_AVATAR,   place.getUserAvatar());
-                i.putExtra(PlaceDetailsActivity.EXTRA_POSTED_DATE,     place.getFormattedDate());
-                context.startActivity(i);
+                context.startActivity(PlaceDetailsActivity.createIntent(context, place));
             });
+            cardView.setOnLongClickListener(null);
 
             btnFavorite.setOnClickListener(v -> {
                 if (favoriteListener != null) favoriteListener.onFavoriteClick(place, position);
+            });
+            btnDeletePost.setOnClickListener(v -> {
+                if (deleteClickListener != null) {
+                    deleteClickListener.onDeleteClick(place, position);
+                }
             });
         }
 

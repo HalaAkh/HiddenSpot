@@ -1,5 +1,6 @@
 package com.hiddenspot.app.fragments;
 
+<<<<<<< HEAD
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -8,6 +9,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+=======
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
+>>>>>>> 93c6f54 (Modified)
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -35,8 +41,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.hiddenspot.app.R;
 import com.hiddenspot.app.activities.AuthActivity;
+<<<<<<< HEAD
 import com.hiddenspot.app.adapters.PlaceAdapter;
 import com.hiddenspot.app.adapters.ReviewAdapter;
+=======
+import com.hiddenspot.app.activities.EditProfileActivity;
+import com.hiddenspot.app.activities.PlaceDetailsActivity;
+import com.hiddenspot.app.adapters.NotificationAdapter;
+import com.hiddenspot.app.adapters.PlaceAdapter;
+import com.hiddenspot.app.adapters.ReviewAdapter;
+import com.hiddenspot.app.models.AppNotification;
+>>>>>>> 93c6f54 (Modified)
 import com.hiddenspot.app.models.Place;
 import com.hiddenspot.app.models.Review;
 import com.hiddenspot.app.utils.FirebaseHelper;
@@ -45,6 +60,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< HEAD
+=======
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import de.hdodenhof.circleimageview.CircleImageView;
+>>>>>>> 93c6f54 (Modified)
 
 public class ProfileFragment extends Fragment {
 
@@ -86,16 +109,44 @@ public class ProfileFragment extends Fragment {
         rowNotifications = view.findViewById(R.id.row_notifications);
         rowHelp = view.findViewById(R.id.row_help);
 
+<<<<<<< HEAD
         setMenuRow(rowEditProfile, R.id.tv_edit_icon, R.id.tv_edit_label, "✏️", "Edit Profile");
         setMenuRow(rowRatings, R.id.tv_ratings_icon, R.id.tv_ratings_label, "⭐", "My Ratings");
         setMenuRow(rowNotifications, R.id.tv_notif_icon, R.id.tv_notif_label, "🔔", "Notifications");
         setMenuRow(rowHelp, R.id.tv_help_icon, R.id.tv_help_label, "❓", "Help & Support");
+=======
+        setMenuRow(rowEditProfile, "✏️", "Edit Profile");
+        setMenuRow(rowRatings, "⭐", "My Ratings");
+        setMenuRow(rowNotifications, "🔔", "Notifications");
+        setMenuRow(rowHelp, "❓", "Help & Support");
+>>>>>>> 93c6f54 (Modified)
 
         postsAdapter = new PlaceAdapter(requireContext(), myPosts);
+        postsAdapter.setShowDeleteButton(true);
         rvMyPosts.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvMyPosts.setAdapter(postsAdapter);
         rvMyPosts.setNestedScrollingEnabled(false);
 
+<<<<<<< HEAD
+=======
+            boolean newState = !place.isFavorited();
+            place.setFavorited(newState);
+            postsAdapter.notifyItemChanged(pos);
+
+            if (newState) {
+                FirebaseHelper.getInstance().saveGem(uid, place.getId(),
+                        v -> requireActivity().runOnUiThread(this::loadUserProfile),
+                        e -> requireActivity().runOnUiThread(this::loadUserProfile));
+            } else {
+                FirebaseHelper.getInstance().unsaveGem(uid, place.getId(),
+                        v -> requireActivity().runOnUiThread(this::loadUserProfile),
+                        e -> requireActivity().runOnUiThread(this::loadUserProfile));
+            }
+        });
+        postsAdapter.setOnDeleteClickListener((place, pos) -> showDeletePostDialog(place, pos));
+
+        resetProfileUi();
+>>>>>>> 93c6f54 (Modified)
         loadUserProfile();
 
         // ── Logout ────────────────────────────────────────────────────────
@@ -106,6 +157,7 @@ public class ProfileFragment extends Fragment {
             startActivity(i);
         });
 
+<<<<<<< HEAD
         // ── Edit Profile ──────────────────────────────────────────────────
         rowEditProfile.setOnClickListener(v -> showEditProfileDialog());
 
@@ -123,6 +175,15 @@ public class ProfileFragment extends Fragment {
         if (avatarContainer != null) {
             avatarContainer.setOnClickListener(v -> showAvatarOptions());
         }
+=======
+        View.OnClickListener openEditProfile = v ->
+                startActivity(new Intent(requireActivity(), EditProfileActivity.class));
+        rowEditProfile.setOnClickListener(openEditProfile);
+        btnChangePhoto.setOnClickListener(openEditProfile);
+        rowRatings.setOnClickListener(v -> showMyRatings());
+        rowNotifications.setOnClickListener(v -> showNotificationsListDialog());
+        rowHelp.setOnClickListener(v -> showHelpDialog());
+>>>>>>> 93c6f54 (Modified)
     }
 
     // ── Load profile ──────────────────────────────────────────────────────
@@ -206,6 +267,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+<<<<<<< HEAD
     private void checkPermissionAndPickImage() {
         String perm = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 ? Manifest.permission.READ_MEDIA_IMAGES
@@ -323,34 +385,138 @@ public class ProfileFragment extends Fragment {
                             }),
                             e -> Toast.makeText(requireContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 })
+=======
+    private void showDeletePostDialog(Place place, int position) {
+        FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+        if (user == null || place == null || place.getId() == null) return;
+        if (!user.getUid().equals(place.getUserId())) return;
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Post")
+                .setMessage("Delete \"" + place.getName() + "\"?")
+                .setPositiveButton("Delete", (dialog, which) -> deletePost(place, position))
+>>>>>>> 93c6f54 (Modified)
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
+<<<<<<< HEAD
     // ── My Ratings dialog ─────────────────────────────────────────────────
+=======
+    private void deletePost(Place place, int position) {
+        if (position < 0 || position >= myPosts.size()) return;
+        Place removed = myPosts.remove(position);
+        postsAdapter.updatePlaces(myPosts);
+        updatePostStatsAfterDelete();
+
+        FirebaseHelper.getInstance().deleteGem(place.getId(), v -> {
+            if (isAdded()) requireActivity().runOnUiThread(() -> {
+                Toast.makeText(requireContext(), "Post deleted", Toast.LENGTH_SHORT).show();
+                loadUserProfile();
+            });
+        }, e -> {
+            if (isAdded()) requireActivity().runOnUiThread(() -> {
+                myPosts.add(position, removed);
+                postsAdapter.updatePlaces(myPosts);
+                updatePostStatsAfterDelete();
+                Toast.makeText(requireContext(),
+                        e.getMessage() != null ? e.getMessage() : "Failed to delete post",
+                        Toast.LENGTH_SHORT).show();
+            });
+        });
+    }
+
+    private void updatePostStatsAfterDelete() {
+        int posts = myPosts.size();
+        int likes = 0;
+        double totalRating = 0;
+        int ratedCount = 0;
+
+        for (Place post : myPosts) {
+            likes += post.getUpvotes();
+            if (post.getRating() > 0) {
+                totalRating += post.getRating();
+                ratedCount++;
+            }
+        }
+
+        tvStatPlaces.setText(String.valueOf(posts));
+        tvStatLikes.setText(String.valueOf(likes));
+        tvStatRating.setText(ratedCount > 0
+                ? String.format(Locale.getDefault(), "%.1f", totalRating / ratedCount) : "—");
+        tvPostsCount.setText(getString(R.string.posts_count_format, posts));
+    }
+>>>>>>> 93c6f54 (Modified)
 
     private void showMyRatings() {
         FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
         if (user == null) return;
 
+<<<<<<< HEAD
         // Build a dialog that shows a RecyclerView of all reviews this user has written
+=======
+>>>>>>> 93c6f54 (Modified)
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_my_ratings, null);
         RecyclerView rv = dialogView.findViewById(R.id.rv_my_ratings);
         TextView tvEmpty = dialogView.findViewById(R.id.tv_no_ratings);
 
         List<Review> myReviews = new ArrayList<>();
+<<<<<<< HEAD
         ReviewAdapter adapter = new ReviewAdapter(requireContext(), myReviews);
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle("⭐ My Ratings")
+=======
+        ReviewAdapter adapter = new ReviewAdapter(requireContext(), myReviews, user.getUid());
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rv.setAdapter(adapter);
+        adapter.setOnDeleteClickListener((review, position) -> new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Review")
+                .setMessage("Delete this review?")
+                .setPositiveButton("Delete", (d, w) -> {
+                    if (position < 0 || position >= myReviews.size()) return;
+                    Review removed = myReviews.remove(position);
+                    adapter.updateReviews(myReviews);
+                    boolean empty = myReviews.isEmpty();
+                    tvEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+                    rv.setVisibility(empty ? View.GONE : View.VISIBLE);
+
+                    FirebaseHelper.getInstance().deleteReview(removed, v -> {
+                        if (isAdded()) requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(requireContext(), "Review deleted", Toast.LENGTH_SHORT).show();
+                            loadUserProfile();
+                        });
+                    }, e -> {
+                        if (isAdded()) requireActivity().runOnUiThread(() -> {
+                            myReviews.add(position, removed);
+                            adapter.updateReviews(myReviews);
+                            boolean revertedEmpty = myReviews.isEmpty();
+                            tvEmpty.setVisibility(revertedEmpty ? View.VISIBLE : View.GONE);
+                            rv.setVisibility(revertedEmpty ? View.GONE : View.VISIBLE);
+                            Toast.makeText(requireContext(),
+                                    e.getMessage() != null ? e.getMessage() : "Failed to delete review",
+                                    Toast.LENGTH_SHORT).show();
+                        });
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show());
+        adapter.setOnReviewClickListener((review, position) -> openPlaceFromGemId(review.getGemId()));
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle("My Ratings")
+>>>>>>> 93c6f54 (Modified)
                 .setView(dialogView)
                 .setPositiveButton("Close", null)
                 .create();
         dialog.show();
 
+<<<<<<< HEAD
         // Load from Firestore
+=======
+>>>>>>> 93c6f54 (Modified)
         FirebaseHelper.getInstance().getDb()
                 .collection(FirebaseHelper.COLLECTION_REVIEWS)
                 .whereEqualTo("userId", user.getUid())
@@ -358,6 +524,7 @@ public class ProfileFragment extends Fragment {
                 .addOnSuccessListener(snap -> {
                     myReviews.clear();
                     for (DocumentSnapshot doc : snap.getDocuments()) {
+<<<<<<< HEAD
                         Review r = doc.toObject(Review.class);
                         if (r != null) {
                             r.setId(doc.getId());
@@ -399,6 +566,233 @@ public class ProfileFragment extends Fragment {
                     switch (which) {
                         case 0:
                             // Open email with all three team members
+=======
+                        Review review = doc.toObject(Review.class);
+                        if (review != null) {
+                            review.setId(doc.getId());
+                            myReviews.add(review);
+                        }
+                    }
+                    hydrateReviewGemNames(myReviews, () -> {
+                        if (!isAdded()) return;
+                        requireActivity().runOnUiThread(() -> {
+                            adapter.updateReviews(myReviews);
+                            boolean empty = myReviews.isEmpty();
+                            tvEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+                            rv.setVisibility(empty ? View.GONE : View.VISIBLE);
+                        });
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Failed to load ratings", Toast.LENGTH_SHORT).show());
+                });
+    }
+
+    private void showNotificationsDialog() {
+        FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle("Notifications")
+                .setMessage("Loading...")
+                .setPositiveButton("Close", null)
+                .create();
+        dialog.show();
+
+        FirebaseHelper.getInstance().fetchGemsByUser(user.getUid(), snap -> {
+            List<DocumentSnapshot> gemDocs = snap.getDocuments();
+            if (gemDocs.isEmpty()) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() ->
+                        dialog.setMessage("You have no notifications yet.\n\nAdd a place to start receiving activity."));
+                return;
+            }
+
+            List<String> notifications = new ArrayList<>();
+            AtomicInteger pending = new AtomicInteger(gemDocs.size() * 2);
+
+            Runnable finish = () -> {
+                if (pending.decrementAndGet() != 0 || !isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (notifications.isEmpty()) {
+                        dialog.setMessage("You have no new notifications.\n\nYou will be notified when:\n• Someone reviews your place\n• Your place gets upvoted");
+                    } else {
+                        StringBuilder builder = new StringBuilder();
+                        for (String item : notifications) {
+                            if (builder.length() > 0) builder.append("\n\n");
+                            builder.append("• ").append(item);
+                        }
+                        dialog.setMessage(builder.toString());
+                    }
+                });
+            };
+
+            for (DocumentSnapshot gemDoc : gemDocs) {
+                String gemId = gemDoc.getId();
+                String gemName = gemDoc.getString("name");
+                if (gemName == null || gemName.trim().isEmpty()) gemName = "your place";
+                String finalGemName = gemName;
+
+                FirebaseHelper.getInstance().fetchReviewsForGem(gemId, reviewsSnap -> {
+                    for (DocumentSnapshot reviewDoc : reviewsSnap.getDocuments()) {
+                        Review review = reviewDoc.toObject(Review.class);
+                        if (review != null && !user.getUid().equals(review.getUserId())) {
+                            String reviewer = review.getUserName() != null && !review.getUserName().trim().isEmpty()
+                                    ? review.getUserName() : "Someone";
+                            notifications.add(reviewer + " reviewed " + finalGemName + ".");
+                        }
+                    }
+                    finish.run();
+                }, e -> finish.run());
+
+                FirebaseHelper.getInstance().getDb()
+                        .collection(FirebaseHelper.COLLECTION_GEMS)
+                        .document(gemId)
+                        .collection(FirebaseHelper.SUBCOLLECTION_VOTES)
+                        .whereEqualTo("value", "upvote")
+                        .get()
+                        .addOnSuccessListener(voteSnap -> {
+                            int upvoteCount = 0;
+                            for (DocumentSnapshot voteDoc : voteSnap.getDocuments()) {
+                                if (!user.getUid().equals(voteDoc.getId())) upvoteCount++;
+                            }
+                            if (upvoteCount > 0) {
+                                notifications.add(finalGemName + " received " + upvoteCount + " upvote"
+                                        + (upvoteCount == 1 ? "" : "s") + ".");
+                            }
+                            finish.run();
+                        })
+                        .addOnFailureListener(e -> finish.run());
+            }
+        }, e -> {
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() ->
+                    dialog.setMessage("Failed to load notifications."));
+        });
+    }
+
+    private void showNotificationsListDialog() {
+        FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_notifications, null);
+        RecyclerView rv = dialogView.findViewById(R.id.rv_notifications);
+        TextView tvEmpty = dialogView.findViewById(R.id.tv_no_notifications);
+
+        List<AppNotification> notifications = new ArrayList<>();
+        NotificationAdapter adapter = new NotificationAdapter(requireContext(), notifications);
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rv.setAdapter(adapter);
+        adapter.setOnNotificationClickListener((notification, position) -> openPlaceFromGemId(notification.getGemId()));
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle("Notifications")
+                .setView(dialogView)
+                .setPositiveButton("Close", null)
+                .create();
+        dialog.show();
+
+        FirebaseHelper.getInstance().fetchNotifications(user.getUid(), snap -> {
+            notifications.clear();
+            for (DocumentSnapshot doc : snap.getDocuments()) {
+                AppNotification notification = doc.toObject(AppNotification.class);
+                if (notification != null) {
+                    notification.setId(doc.getId());
+                    notifications.add(notification);
+                }
+            }
+
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() -> {
+                adapter.updateNotifications(notifications);
+                boolean empty = notifications.isEmpty();
+                tvEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+                rv.setVisibility(empty ? View.GONE : View.VISIBLE);
+            });
+        }, e -> {
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Failed to load notifications", Toast.LENGTH_SHORT).show());
+        });
+    }
+
+    private void hydrateReviewGemNames(List<Review> reviews, Runnable onComplete) {
+        if (reviews.isEmpty()) {
+            onComplete.run();
+            return;
+        }
+
+        AtomicInteger remaining = new AtomicInteger(reviews.size());
+        for (Review review : reviews) {
+            if (review.getGemId() == null || review.getGemId().trim().isEmpty()) {
+                if (remaining.decrementAndGet() == 0) onComplete.run();
+                continue;
+            }
+
+            FirebaseHelper.getInstance().fetchGemById(review.getGemId(), snap -> {
+                if (snap.exists()) {
+                    String gemName = snap.getString("name");
+                    if (gemName != null && !gemName.trim().isEmpty()) {
+                        review.setGemName(gemName);
+                    }
+                }
+                if (remaining.decrementAndGet() == 0) onComplete.run();
+            }, e -> {
+                if (remaining.decrementAndGet() == 0) onComplete.run();
+            });
+        }
+    }
+
+    private void openPlaceFromGemId(String gemId) {
+        if (gemId == null || gemId.trim().isEmpty()) return;
+
+        FirebaseHelper.getInstance().fetchGemById(gemId, snap -> {
+            if (!snap.exists()) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Post not found", Toast.LENGTH_SHORT).show());
+                return;
+            }
+
+            Place place = snap.toObject(Place.class);
+            if (place == null) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Post not found", Toast.LENGTH_SHORT).show());
+                return;
+            }
+
+            place.setId(snap.getId());
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() ->
+                    startActivity(PlaceDetailsActivity.createIntent(requireContext(), place)));
+        }, e -> {
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Failed to open post", Toast.LENGTH_SHORT).show());
+        });
+    }
+
+    private void showHelpDialog() {
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_help_support, null);
+        TextView tvMessage = dialogView.findViewById(R.id.tv_help_message);
+        tvMessage.setText("Need help? Contact our team:\n\nmariam.kafel@outlook.com\nreem.diab02@lau.edu\nhala.elakhrass@lau.edu");
+
+        String[] options = new String[] {
+                "Contact Us",
+                "How to add a place",
+                "How to leave a review",
+                "Privacy Policy"
+        };
+
+        new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+>>>>>>> 93c6f54 (Modified)
                             Intent email = new Intent(Intent.ACTION_SENDTO,
                                     Uri.parse("mailto:mariam.kafel@outlook.com,reem.diab02@lau.edu,hala.elakhrass@lau.edu"));
                             email.putExtra(Intent.EXTRA_SUBJECT, "HiddenSpot Support");
@@ -415,6 +809,7 @@ public class ProfileFragment extends Fragment {
                             break;
                         case 2:
                             showInfoDialog("How to Leave a Review",
+<<<<<<< HEAD
                                     "1. Tap on any place card to open its details\n" +
                                             "2. Scroll down to the Reviews section\n" +
                                             "3. Tap the stars to give a rating (1-5)\n" +
@@ -440,6 +835,28 @@ public class ProfileFragment extends Fragment {
                             break;
                     }
                 })
+=======
+                                    "1. Open any place details screen\n" +
+                                            "2. Scroll to the Reviews section\n" +
+                                            "3. Select a star rating\n" +
+                                            "4. Add an optional comment\n" +
+                                            "5. Tap 'Submit Review'");
+                            break;
+                        case 3:
+                            showInfoDialog("Privacy Policy",
+                                    "HiddenSpot collects minimal data:\n\n" +
+                                            "• Your email address\n" +
+                                            "• Your display name\n" +
+                                            "• Places you submit\n" +
+                                            "• Reviews you write\n\n" +
+                                            "All data is stored on Firebase.");
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                .setPositiveButton("Close", null)
+>>>>>>> 93c6f54 (Modified)
                 .show();
     }
 
@@ -451,6 +868,7 @@ public class ProfileFragment extends Fragment {
                 .show();
     }
 
+<<<<<<< HEAD
     // ── Helpers ───────────────────────────────────────────────────────────
 
     private void setMenuRow(LinearLayout row, int iconId, int labelId, String emoji, String label) {
@@ -458,6 +876,13 @@ public class ProfileFragment extends Fragment {
         TextView tvIcon = row.findViewById(iconId);
         TextView tvLabel = row.findViewById(labelId);
         if (tvIcon != null) tvIcon.setText(emoji);
+=======
+    private void setMenuRow(LinearLayout row, String icon, String label) {
+        if (row == null) return;
+        TextView tvIcon = row.findViewById(R.id.tv_row_icon);
+        TextView tvLabel = row.findViewById(R.id.tv_row_label);
+        if (tvIcon != null) tvIcon.setText(icon);
+>>>>>>> 93c6f54 (Modified)
         if (tvLabel != null) tvLabel.setText(label);
     }
 

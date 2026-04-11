@@ -5,20 +5,20 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/tv_no_ratings"
+        android:id="@+id/tv_no_notifications"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="24dp"
-        android:text="You haven't rated any places yet.\nGo explore and leave your first review!"
+        android:text="No notifications yet."
         android:textColor="#7A6F67"
         android:textSize="13sp"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_my_ratings"
+        android:id="@+id/rv_notifications"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxHeight="400dp"
+        android:maxHeight="420dp"
         android:nestedScrollingEnabled="false" />
 </LinearLayout>

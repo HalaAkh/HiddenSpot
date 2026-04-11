@@ -1,5 +1,6 @@
 package com.hiddenspot.app.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,12 +22,24 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+<<<<<<< HEAD
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.hiddenspot.app.R;
 import com.hiddenspot.app.adapters.ReviewAdapter;
 import com.hiddenspot.app.models.Review;
 import com.hiddenspot.app.utils.FirebaseHelper;
 
+=======
+import com.hiddenspot.app.R;
+import com.hiddenspot.app.adapters.ReviewAdapter;
+import com.hiddenspot.app.models.AppNotification;
+import com.hiddenspot.app.models.Place;
+import com.hiddenspot.app.models.Review;
+import com.hiddenspot.app.utils.FirebaseHelper;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+
+>>>>>>> 93c6f54 (Modified)
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,13 +60,25 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_PLACE_DOWNVOTES = "place_downvotes";
     public static final String EXTRA_PLACE_FAVORITED = "place_favorited";
     public static final String EXTRA_POSTER_NAME     = "poster_name";
+<<<<<<< HEAD
     public static final String EXTRA_POSTED_DATE     = "posted_date";
 
     // ── State ────────────────────────────────────────────────────────────────
     private String placeId, placeAddress, placeCity;
     private int    upvotes, downvotes;
     private String voteState  = "none";
+=======
+    public static final String EXTRA_POSTER_USER_ID  = "poster_user_id";
+    public static final String EXTRA_POSTER_AVATAR   = "poster_avatar";
+    public static final String EXTRA_POSTED_DATE     = "posted_date";
+
+    private String placeId;
+    private String posterUserId;
+    private int upvotes, downvotes;
+    private String voteState = "none";
+>>>>>>> 93c6f54 (Modified)
     private boolean isFavorited;
+    private String placeName;
 
     // ── Views ────────────────────────────────────────────────────────────────
     private android.widget.ImageView ivHero;
@@ -62,6 +87,36 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     private LinearLayout layoutPhone;
     private MaterialButton btnUpvote, btnDownvote, btnMaps, btnCall;
     private ImageButton btnBack, btnShare, btnFavorite;
+    private RecyclerView rvReviews;
+    private ReviewAdapter reviewAdapter;
+    private final List<Review> reviewList = new ArrayList<>();
+    private RatingBar ratingBarInput;
+    private TextInputEditText etReviewComment;
+    private MaterialButton btnSubmitReview;
+    private TextView tvReviewCount;
+    private TextView tvNoReviews;
+    private float myRating = 0f;
+
+    public static Intent createIntent(android.content.Context context, Place place) {
+        Intent i = new Intent(context, PlaceDetailsActivity.class);
+        i.putExtra(EXTRA_PLACE_ID, place.getId());
+        i.putExtra(EXTRA_PLACE_NAME, place.getName());
+        i.putExtra(EXTRA_PLACE_IMAGE, place.getFirstImage());
+        i.putExtra(EXTRA_PLACE_CITY, place.getCity());
+        i.putExtra(EXTRA_PLACE_ADDRESS, place.getAddress());
+        i.putExtra(EXTRA_PLACE_PHONE, place.getPhone());
+        i.putExtra(EXTRA_PLACE_DESC, place.getDescription());
+        i.putExtra(EXTRA_PLACE_CATEGORY, place.getCategory());
+        i.putExtra(EXTRA_PLACE_RATING, place.getRating());
+        i.putExtra(EXTRA_PLACE_UPVOTES, place.getUpvotes());
+        i.putExtra(EXTRA_PLACE_DOWNVOTES, place.getDownvotes());
+        i.putExtra(EXTRA_PLACE_FAVORITED, place.isFavorited());
+        i.putExtra(EXTRA_POSTER_NAME, place.getUserName());
+        i.putExtra(EXTRA_POSTER_USER_ID, place.getUserId());
+        i.putExtra(EXTRA_POSTER_AVATAR, place.getUserAvatar());
+        i.putExtra(EXTRA_POSTED_DATE, place.getFormattedDate());
+        return i;
+    }
 
     // ── Review views ─────────────────────────────────────────────────────────
     private RecyclerView     rvReviews;
@@ -83,6 +138,10 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         bindViews();
         populateFromIntent();
         setupListeners();
+<<<<<<< HEAD
+=======
+        loadCurrentVoteState();
+>>>>>>> 93c6f54 (Modified)
         loadReviews();
         checkMyExistingReview();
     }
@@ -106,6 +165,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         btnBack         = findViewById(R.id.btn_back);
         btnShare        = findViewById(R.id.btn_share);
         btnFavorite     = findViewById(R.id.btn_favorite);
+<<<<<<< HEAD
 
         // ── NEW: Review views ────────────────────────────────────────────────
         rvReviews        = findViewById(R.id.rv_reviews);
@@ -122,6 +182,22 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         rvReviews.setLayoutManager(new LinearLayoutManager(this));
         rvReviews.setAdapter(reviewAdapter);
         rvReviews.setNestedScrollingEnabled(false);
+=======
+        rvReviews       = findViewById(R.id.rv_reviews);
+        ratingBarInput  = findViewById(R.id.rating_bar_input);
+        etReviewComment = findViewById(R.id.et_review_comment);
+        btnSubmitReview = findViewById(R.id.btn_submit_review);
+        tvReviewCount   = findViewById(R.id.tv_review_count);
+        tvNoReviews     = findViewById(R.id.tv_no_reviews);
+
+        if (rvReviews != null) {
+            reviewAdapter = new ReviewAdapter(this, reviewList, uid());
+            rvReviews.setLayoutManager(new LinearLayoutManager(this));
+            rvReviews.setAdapter(reviewAdapter);
+            rvReviews.setNestedScrollingEnabled(false);
+            reviewAdapter.setOnDeleteClickListener(this::confirmDeleteReview);
+        }
+>>>>>>> 93c6f54 (Modified)
     }
 
     private void populateFromIntent() {
@@ -132,6 +208,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         isFavorited   = intent.getBooleanExtra(EXTRA_PLACE_FAVORITED, false);
 
         String name     = intent.getStringExtra(EXTRA_PLACE_NAME);
+        placeName       = name;
         String image    = intent.getStringExtra(EXTRA_PLACE_IMAGE);
         placeCity       = intent.getStringExtra(EXTRA_PLACE_CITY);
         placeAddress    = intent.getStringExtra(EXTRA_PLACE_ADDRESS);
@@ -140,6 +217,11 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         String category = intent.getStringExtra(EXTRA_PLACE_CATEGORY);
         double rating   = intent.getDoubleExtra(EXTRA_PLACE_RATING, 0.0);
         String poster   = intent.getStringExtra(EXTRA_POSTER_NAME);
+<<<<<<< HEAD
+=======
+        posterUserId    = intent.getStringExtra(EXTRA_POSTER_USER_ID);
+        String posterAvatar = intent.getStringExtra(EXTRA_POSTER_AVATAR);
+>>>>>>> 93c6f54 (Modified)
         String date     = intent.getStringExtra(EXTRA_POSTED_DATE);
 
         // Load hero image
@@ -186,6 +268,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
         updateVoteButtons();
         updateFavoriteIcon();
+        updateReviewComposerState();
     }
 
     private void setupListeners() {
@@ -217,6 +300,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         btnUpvote.setOnClickListener(v -> handleVote("up"));
         btnDownvote.setOnClickListener(v -> handleVote("down"));
 
+<<<<<<< HEAD
         // ── Maps button: open MapActivity ────────────────────────────────────
         btnMaps.setOnClickListener(v -> openMaps());
 
@@ -226,6 +310,18 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         }
 
         // ── NEW: Rating bar + review submit ──────────────────────────────────
+=======
+        btnMaps.setOnClickListener(v -> {
+            String addr = tvAddress.getText().toString();
+            Uri gmmUri = Uri.parse("geo:0,0?q=" + Uri.encode(addr));
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            if (mapIntent.resolveActivity(getPackageManager()) != null) startActivity(mapIntent);
+            else startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://maps.google.com/?q=" + Uri.encode(addr))));
+        });
+
+>>>>>>> 93c6f54 (Modified)
         if (ratingBarInput != null) {
             ratingBarInput.setOnRatingBarChangeListener((bar, rating, fromUser) -> myRating = rating);
         }
@@ -359,6 +455,29 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             voteState = type;
         }
         updateVoteButtons();
+<<<<<<< HEAD
+=======
+        btnUpvote.setEnabled(false);
+        btnDownvote.setEnabled(false);
+
+        FirebaseHelper.getInstance().setGemVote(placeId, uid,
+                "none".equals(newVoteState) ? null : toVoteValue(newVoteState),
+                v -> runOnUiThread(() -> {
+                    maybeCreateVoteNotification(uid, previousVoteState, newVoteState);
+                    btnUpvote.setEnabled(true);
+                    btnDownvote.setEnabled(true);
+                }),
+                e -> runOnUiThread(() -> {
+                    voteState = previousVoteState;
+                    upvotes = previousUpvotes;
+                    downvotes = previousDownvotes;
+                    updateVoteButtons();
+                    btnUpvote.setEnabled(true);
+                    btnDownvote.setEnabled(true);
+                    Toast.makeText(this, e.getMessage() != null ? e.getMessage() : "Failed to update vote",
+                            Toast.LENGTH_SHORT).show();
+                }));
+>>>>>>> 93c6f54 (Modified)
     }
 
     private void updateVoteButtons() {
@@ -394,7 +513,267 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
     }
 
+<<<<<<< HEAD
     // ── Category helpers (unchanged) ──────────────────────────────────────────
+=======
+    private void applyVoteStateChange(String oldState, String newState) {
+        if ("up".equals(oldState)) upvotes = Math.max(0, upvotes - 1);
+        if ("down".equals(oldState)) downvotes = Math.max(0, downvotes - 1);
+        if ("up".equals(newState)) upvotes += 1;
+        if ("down".equals(newState)) downvotes += 1;
+        voteState = newState;
+    }
+
+    private String toVoteValue(String state) {
+        return "up".equals(state) ? "upvote" : "downvote";
+    }
+
+    private String uid() {
+        return FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+    }
+
+    private void updatePosterAvatar(String posterAvatar) {
+        if (posterAvatar != null && !posterAvatar.trim().isEmpty()) {
+            try {
+                tvPosterInitial.setVisibility(View.GONE);
+                if (posterAvatar.startsWith("http")) {
+                    Glide.with(this).load(posterAvatar).centerCrop().into(ivPosterAvatar);
+                } else {
+                    byte[] imageBytes = Base64.decode(posterAvatar, Base64.DEFAULT);
+                    Glide.with(this).load(imageBytes).centerCrop().into(ivPosterAvatar);
+                }
+            } catch (Exception e) {
+                ivPosterAvatar.setImageDrawable(null);
+                tvPosterInitial.setVisibility(View.VISIBLE);
+            }
+        } else {
+            ivPosterAvatar.setImageDrawable(null);
+            tvPosterInitial.setVisibility(View.VISIBLE);
+        }
+    }
+>>>>>>> 93c6f54 (Modified)
+
+    private void loadReviews() {
+        if (placeId == null || reviewAdapter == null) return;
+
+        FirebaseHelper.getInstance().fetchReviewsForGem(placeId, snap -> {
+            reviewList.clear();
+            for (DocumentSnapshot doc : snap.getDocuments()) {
+                Review review = doc.toObject(Review.class);
+                if (review != null) {
+                    review.setId(doc.getId());
+                    reviewList.add(review);
+                }
+            }
+
+            runOnUiThread(() -> {
+                reviewAdapter.updateReviews(reviewList);
+                if (tvReviewCount != null) {
+                    int count = reviewList.size();
+                    tvReviewCount.setText(count + " review" + (count == 1 ? "" : "s"));
+                }
+                if (tvNoReviews != null) {
+                    tvNoReviews.setVisibility(reviewList.isEmpty() ? View.VISIBLE : View.GONE);
+                }
+                if (rvReviews != null) {
+                    rvReviews.setVisibility(reviewList.isEmpty() ? View.GONE : View.VISIBLE);
+                }
+            });
+        }, e -> runOnUiThread(() -> {
+            if (tvNoReviews != null) tvNoReviews.setVisibility(View.VISIBLE);
+            if (rvReviews != null) rvReviews.setVisibility(View.GONE);
+        }));
+    }
+
+    private void confirmDeleteReview(Review review, int position) {
+        if (review == null || position == RecyclerView.NO_POSITION) return;
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Review")
+                .setMessage("Delete this review?")
+                .setPositiveButton("Delete", (dialog, which) -> deleteReview(review, position))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void deleteReview(Review review, int position) {
+        if (position < 0 || position >= reviewList.size()) return;
+        Review removed = reviewList.remove(position);
+        reviewAdapter.updateReviews(reviewList);
+        int count = reviewList.size();
+        if (tvReviewCount != null) tvReviewCount.setText(count + " review" + (count == 1 ? "" : "s"));
+        if (tvNoReviews != null) tvNoReviews.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
+        if (rvReviews != null) rvReviews.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
+        if (ratingBarInput != null) ratingBarInput.setRating(0f);
+        if (etReviewComment != null) etReviewComment.setText("");
+        myRating = 0f;
+        if (btnSubmitReview != null) btnSubmitReview.setText("Submit Review");
+
+        FirebaseHelper.getInstance().deleteReview(removed, v -> runOnUiThread(() ->
+                        Toast.makeText(this, "Review deleted", Toast.LENGTH_SHORT).show()),
+                e -> runOnUiThread(() -> {
+                    reviewList.add(position, removed);
+                    reviewAdapter.updateReviews(reviewList);
+                    int restoredCount = reviewList.size();
+                    if (tvReviewCount != null) {
+                        tvReviewCount.setText(restoredCount + " review" + (restoredCount == 1 ? "" : "s"));
+                    }
+                    if (tvNoReviews != null) tvNoReviews.setVisibility(restoredCount == 0 ? View.VISIBLE : View.GONE);
+                    if (rvReviews != null) rvReviews.setVisibility(restoredCount == 0 ? View.GONE : View.VISIBLE);
+                    checkMyExistingReview();
+                    Toast.makeText(this,
+                            e.getMessage() != null ? e.getMessage() : "Failed to delete review",
+                            Toast.LENGTH_SHORT).show();
+                }));
+    }
+
+    private void updateReviewComposerState() {
+        String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+        boolean isOwnPost = uid != null && uid.equals(posterUserId);
+
+        if (ratingBarInput != null) ratingBarInput.setVisibility(isOwnPost ? View.GONE : View.VISIBLE);
+        if (etReviewComment != null) {
+            View parent = (View) etReviewComment.getParent().getParent();
+            parent.setVisibility(isOwnPost ? View.GONE : View.VISIBLE);
+        }
+        if (btnSubmitReview != null) btnSubmitReview.setVisibility(isOwnPost ? View.GONE : View.VISIBLE);
+
+        if (isOwnPost && tvReviewCount != null) {
+            tvReviewCount.setText("You can't rate your own post");
+        }
+    }
+
+    private void checkMyExistingReview() {
+        String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+        if (uid == null || placeId == null || ratingBarInput == null) return;
+
+        FirebaseHelper.getInstance().fetchMyReview(uid, placeId, existing -> {
+            if (existing == null) return;
+            runOnUiThread(() -> {
+                ratingBarInput.setRating(existing.getRating());
+                myRating = existing.getRating();
+                if (etReviewComment != null && existing.getComment() != null) {
+                    etReviewComment.setText(existing.getComment());
+                }
+                if (btnSubmitReview != null) {
+                    btnSubmitReview.setText("Update Review");
+                }
+            });
+        }, e -> { });
+    }
+
+    private void submitReview() {
+        String uid = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+        if (uid == null) {
+            Toast.makeText(this, "Please log in to leave a review", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (myRating == 0f) {
+            Toast.makeText(this, "Please select a star rating", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (uid.equals(posterUserId)) {
+            Toast.makeText(this, "You can't rate your own post", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String comment = etReviewComment != null && etReviewComment.getText() != null
+                ? etReviewComment.getText().toString().trim() : "";
+        String userName = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getDisplayName() : "Anonymous";
+        if (userName == null || userName.trim().isEmpty()) userName = "Anonymous";
+
+        if (btnSubmitReview != null) {
+            btnSubmitReview.setEnabled(false);
+            btnSubmitReview.setText("Saving...");
+        }
+
+        String fallbackAvatar = FirebaseHelper.getInstance().getCurrentUser() != null
+                && FirebaseHelper.getInstance().getCurrentUser().getPhotoUrl() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getPhotoUrl().toString() : "";
+
+        String finalUserName = userName;
+        FirebaseHelper.getInstance().fetchUserProfile(uid, snap -> {
+            String avatar = snap.getString("avatarUrl");
+            if (avatar == null || avatar.trim().isEmpty()) avatar = fallbackAvatar;
+
+            Review review = new Review(placeId, uid, finalUserName, avatar, myRating, comment);
+            FirebaseHelper.getInstance().addReview(review, v -> runOnUiThread(() -> {
+                maybeCreateReviewNotification(uid, finalUserName);
+                Toast.makeText(this, "Review saved!", Toast.LENGTH_SHORT).show();
+                if (btnSubmitReview != null) {
+                    btnSubmitReview.setEnabled(true);
+                    btnSubmitReview.setText("Update Review");
+                }
+                loadReviews();
+            }), e -> runOnUiThread(() -> {
+                Toast.makeText(this, e.getMessage() != null ? e.getMessage() : "Failed to save review",
+                        Toast.LENGTH_SHORT).show();
+                if (btnSubmitReview != null) {
+                    btnSubmitReview.setEnabled(true);
+                    btnSubmitReview.setText("Submit Review");
+                }
+            }));
+        }, e -> {
+            Review review = new Review(placeId, uid, finalUserName, fallbackAvatar, myRating, comment);
+            FirebaseHelper.getInstance().addReview(review, v -> runOnUiThread(() -> {
+                maybeCreateReviewNotification(uid, finalUserName);
+                Toast.makeText(this, "Review saved!", Toast.LENGTH_SHORT).show();
+                if (btnSubmitReview != null) {
+                    btnSubmitReview.setEnabled(true);
+                    btnSubmitReview.setText("Update Review");
+                }
+                loadReviews();
+            }), err -> runOnUiThread(() -> {
+                Toast.makeText(this, err.getMessage() != null ? err.getMessage() : "Failed to save review",
+                        Toast.LENGTH_SHORT).show();
+                if (btnSubmitReview != null) {
+                    btnSubmitReview.setEnabled(true);
+                    btnSubmitReview.setText("Submit Review");
+                }
+            }));
+        });
+    }
+
+    private void maybeCreateVoteNotification(String actorUserId, String oldState, String newState) {
+        if (!"up".equals(newState) || "up".equals(oldState) || actorUserId == null || placeId == null) return;
+        if (posterUserId == null || posterUserId.equals(actorUserId)) return;
+
+        String actorName = FirebaseHelper.getInstance().getCurrentUser() != null
+                ? FirebaseHelper.getInstance().getCurrentUser().getDisplayName() : "Someone";
+        if (actorName == null || actorName.trim().isEmpty()) actorName = "Someone";
+
+        AppNotification notification = new AppNotification(
+                posterUserId,
+                actorUserId,
+                actorName,
+                "upvote",
+                placeId,
+                placeName,
+                actorName + " upvoted your post " + (placeName != null ? "\"" + placeName + "\"" : "")
+        );
+        FirebaseHelper.getInstance().createNotification(notification, s -> { }, e -> { });
+    }
+
+    private void maybeCreateReviewNotification(String actorUserId, String actorName) {
+        if (actorUserId == null || placeId == null) return;
+        if (posterUserId == null || posterUserId.equals(actorUserId)) return;
+        if (actorName == null || actorName.trim().isEmpty()) actorName = "Someone";
+
+        AppNotification notification = new AppNotification(
+                posterUserId,
+                actorUserId,
+                actorName,
+                "review",
+                placeId,
+                placeName,
+                actorName + " reviewed your post " + (placeName != null ? "\"" + placeName + "\"" : "")
+        );
+        FirebaseHelper.getInstance().createNotification(notification, s -> { }, e -> { });
+    }
 
     private String getCategoryDisplay(String cat) {
         if (cat == null) return "";

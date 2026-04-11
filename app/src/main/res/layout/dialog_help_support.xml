@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_card_rounded"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tv_help_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Help &amp; Support"
+        android:textColor="@color/foreground"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/tv_help_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/inter"
+        android:textColor="@color/muted_foreground"
+        android:textSize="13sp" />
+</LinearLayout>
