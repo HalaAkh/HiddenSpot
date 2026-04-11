@@ -407,6 +407,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                     tvReviewCount.setText(count + " review" + (count == 1 ? "" : "s"));
                 }
                 if (tvNoReviews != null) {
+                    tvNoReviews.setText(getNoReviewsMessage());
                     tvNoReviews.setVisibility(reviewList.isEmpty() ? View.VISIBLE : View.GONE);
                 }
                 if (rvReviews != null) {
@@ -414,7 +415,10 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 }
             });
         }, e -> runOnUiThread(() -> {
-            if (tvNoReviews != null) tvNoReviews.setVisibility(View.VISIBLE);
+            if (tvNoReviews != null) {
+                tvNoReviews.setText(getNoReviewsMessage());
+                tvNoReviews.setVisibility(View.VISIBLE);
+            }
             if (rvReviews != null) rvReviews.setVisibility(View.GONE);
         }));
     }
@@ -435,7 +439,10 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         reviewAdapter.updateReviews(reviewList);
         int count = reviewList.size();
         if (tvReviewCount != null) tvReviewCount.setText(count + " review" + (count == 1 ? "" : "s"));
-        if (tvNoReviews != null) tvNoReviews.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
+        if (tvNoReviews != null) {
+            tvNoReviews.setText(getNoReviewsMessage());
+            tvNoReviews.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
+        }
         if (rvReviews != null) rvReviews.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
         if (ratingBarInput != null) ratingBarInput.setRating(0f);
         if (etReviewComment != null) etReviewComment.setText("");
@@ -451,7 +458,10 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                     if (tvReviewCount != null) {
                         tvReviewCount.setText(restoredCount + " review" + (restoredCount == 1 ? "" : "s"));
                     }
-                    if (tvNoReviews != null) tvNoReviews.setVisibility(restoredCount == 0 ? View.VISIBLE : View.GONE);
+                    if (tvNoReviews != null) {
+                        tvNoReviews.setText(getNoReviewsMessage());
+                        tvNoReviews.setVisibility(restoredCount == 0 ? View.VISIBLE : View.GONE);
+                    }
                     if (rvReviews != null) rvReviews.setVisibility(restoredCount == 0 ? View.GONE : View.VISIBLE);
                     checkMyExistingReview();
                     Toast.makeText(this,
@@ -474,6 +484,17 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         if (isOwnPost && tvReviewCount != null) {
             tvReviewCount.setText("You can't rate your own post");
         }
+        if (tvNoReviews != null) {
+            tvNoReviews.setText(getNoReviewsMessage());
+        }
+    }
+
+    private String getNoReviewsMessage() {
+        String uid = uid();
+        boolean isOwnPost = uid != null && uid.equals(posterUserId);
+        return isOwnPost
+                ? "No one reviewed your post yet!"
+                : "No reviews yet.";
     }
 
     private void checkMyExistingReview() {
