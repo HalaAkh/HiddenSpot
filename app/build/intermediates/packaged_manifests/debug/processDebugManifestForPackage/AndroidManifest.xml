@@ -59,35 +59,35 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <!-- Auth -->
         <activity
             android:name="com.hiddenspot.app.activities.AuthActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
-        <!-- Main (holds bottom nav + fragments) -->
+        <!-- Main -->
         <activity
             android:name="com.hiddenspot.app.activities.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
         <!-- Place Details -->
         <activity
             android:name="com.hiddenspot.app.activities.PlaceDetailsActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <!-- Add Place -->
         <activity
             android:name="com.hiddenspot.app.activities.AddPlaceActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
-        <!-- Google Maps API Key — replace YOUR_MAPS_KEY -->
+        <!-- NEW: Map View -->
+        <activity
+            android:name="com.hiddenspot.app.activities.MapActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <!-- Google Maps API Key — replace YOUR_MAPS_KEY with your actual key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_MAPS_KEY" />

@@ -4,6 +4,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -12,6 +13,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.hiddenspot.app.models.Place;
+import com.hiddenspot.app.models.Review;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,11 +42,12 @@ public class FirebaseHelper {
         return instance;
     }
 
-    public FirebaseAuth getAuth() { return auth; }
-    public FirebaseFirestore getDb() { return db; }
-    public FirebaseUser getCurrentUser() { return auth.getCurrentUser(); }
+    public FirebaseAuth       getAuth()        { return auth; }
+    public FirebaseFirestore  getDb()          { return db; }
+    public FirebaseUser       getCurrentUser() { return auth.getCurrentUser(); }
 
-    // AUTH
+    // ── AUTH ─────────────────────────────────────────────────────────────────
+
     public void signIn(String email, String password,
                        OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
         auth.signInWithEmailAndPassword(email, password)
@@ -56,13 +59,22 @@ public class FirebaseHelper {
                        OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(r -> {
-                    String uid = r.getUser().getUid();
-                    Map<String, Object> user = new HashMap<>();
-                    user.put("uid", uid);
-                    user.put("displayName", username);
-                    user.put("email", email);
-                    user.put("gemsCount", 0);
-                    db.collection(COLLECTION_USERS).document(uid).set(user)
+                    FirebaseUser user = r.getUser();
+                    if (user == null) { onFailure.onFailure(new Exception("User creation failed")); return; }
+                    String uid = user.getUid();
+
+                    // Set display name on FirebaseAuth profile
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                            .setDisplayName(username).build();
+                    user.updateProfile(profileUpdates);
+
+                    Map<String, Object> userDoc = new HashMap<>();
+                    userDoc.put("uid",         uid);
+                    userDoc.put("displayName", username);
+                    userDoc.put("email",       email);
+                    userDoc.put("gemsCount",   0);
+                    userDoc.put("avatarBase64", "");   // NEW: stores base64 avatar
+                    db.collection(COLLECTION_USERS).document(uid).set(userDoc)
                             .addOnSuccessListener(v -> onSuccess.onSuccess(null))
                             .addOnFailureListener(onFailure);
                 }).addOnFailureListener(onFailure);
@@ -70,7 +82,49 @@ public class FirebaseHelper {
 
     public void signOut() { auth.signOut(); }
 
-    // GEMS
+    // ── USER PROFILE ─────────────────────────────────────────────────────────
+
+    /**
+     * Save a base64-encoded avatar string to the user's Firestore document.
+     */
+    public void updateUserAvatar(String uid, String base64Avatar,
+                                 OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        db.collection(COLLECTION_USERS).document(uid)
+                .update("avatarBase64", base64Avatar)
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+
+    /**
+     * Update display name in both FirebaseAuth profile and Firestore doc.
+     */
+    public void updateUserDisplayName(String uid, String newName,
+                                      OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        FirebaseUser user = getCurrentUser();
+        if (user != null) {
+            UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(newName).build();
+            user.updateProfile(req);
+        }
+        db.collection(COLLECTION_USERS).document(uid)
+                .update("displayName", newName)
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+
+    /**
+     * Fetch the Firestore user document (contains avatarBase64, displayName, etc.).
+     */
+    public void fetchUserDoc(String uid,
+                             OnSuccessListener<com.google.firebase.firestore.DocumentSnapshot> onSuccess,
+                             OnFailureListener onFailure) {
+        db.collection(COLLECTION_USERS).document(uid).get()
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+
+    // ── GEMS ─────────────────────────────────────────────────────────────────
+
     public void fetchAllGems(OnSuccessListener<QuerySnapshot> onSuccess, OnFailureListener onFailure) {
         db.collection(COLLECTION_GEMS)
                 .orderBy("createdAt", Query.Direction.DESCENDING)
@@ -86,29 +140,29 @@ public class FirebaseHelper {
     public void addGem(Place place,
                        OnSuccessListener<DocumentReference> onSuccess, OnFailureListener onFailure) {
         Map<String, Object> data = new HashMap<>();
-        data.put("name", place.getName());
-        data.put("city", place.getCity());
-        data.put("address", place.getAddress());
-        data.put("phone", place.getPhone());
+        data.put("name",        place.getName());
+        data.put("city",        place.getCity());
+        data.put("address",     place.getAddress());
+        data.put("phone",       place.getPhone());
         data.put("description", place.getDescription());
-        data.put("category", place.getCategory());
-        data.put("images", place.getImages());
-        data.put("userId", place.getUserId());
-        data.put("userName", place.getUserName());
-        data.put("rating", place.getRating());
+        data.put("category",    place.getCategory());
+        data.put("images",      place.getImages());
+        data.put("userId",      place.getUserId());
+        data.put("userName",    place.getUserName());
+        data.put("rating",      place.getRating());
         data.put("ratingCount", place.getRatingCount());
-        data.put("likesCount", place.getLikesCount());
-        data.put("upvotes", place.getUpvotes());
-        data.put("downvotes", place.getDownvotes());
-        data.put("status", "pending");
-        data.put("isVerified", false);
-        data.put("createdAt", FieldValue.serverTimestamp());
-        
+        data.put("likesCount",  place.getLikesCount());
+        data.put("upvotes",     place.getUpvotes());
+        data.put("downvotes",   place.getDownvotes());
+        data.put("status",      "pending");
+        data.put("isVerified",  false);
+        data.put("createdAt",   FieldValue.serverTimestamp());
         db.collection(COLLECTION_GEMS).add(data)
                 .addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
     }
 
-    // VOTES
+    // ── VOTES ────────────────────────────────────────────────────────────────
+
     public void upvoteGem(String gemId) {
         db.collection(COLLECTION_GEMS).document(gemId).update("upvotes", FieldValue.increment(1));
     }
@@ -122,14 +176,15 @@ public class FirebaseHelper {
         db.collection(COLLECTION_GEMS).document(gemId).update("downvotes", FieldValue.increment(-1));
     }
 
-    // SAVES
+    // ── SAVES ────────────────────────────────────────────────────────────────
+
     public void saveGem(String userId, String gemId,
                         OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
         Map<String, Object> save = new HashMap<>();
-        save.put("userId", userId);
-        save.put("gemId", gemId);
+        save.put("userId",         userId);
+        save.put("gemId",          gemId);
         save.put("collectionName", "Default");
-        save.put("savedAt", FieldValue.serverTimestamp());
+        save.put("savedAt",        FieldValue.serverTimestamp());
         db.collection(COLLECTION_SAVES).document(userId + "_" + gemId)
                 .set(save).addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
     }
@@ -146,8 +201,93 @@ public class FirebaseHelper {
                 .get().addOnSuccessListener(onSuccess).addOnFailureListener(onFailure);
     }
 
-    // STORAGE
+    // ── REVIEWS ──────────────────────────────────────────────────────────────
+
+    /**
+     * Add a review for a gem and atomically update the gem's rating average.
+     */
+    public void addReview(Review review,
+                          OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("gemId",     review.getGemId());
+        data.put("userId",    review.getUserId());
+        data.put("userName",  review.getUserName());
+        data.put("rating",    review.getRating());
+        data.put("comment",   review.getComment());
+        data.put("createdAt", FieldValue.serverTimestamp());
+
+        // Use the userId+gemId as document ID so each user can only review a place once.
+        String docId = review.getUserId() + "_" + review.getGemId();
+        db.collection(COLLECTION_REVIEWS).document(docId).set(data)
+                .addOnSuccessListener(v -> {
+                    // Re-calculate average rating on the gem document
+                    recalculateRating(review.getGemId(), onSuccess, onFailure);
+                })
+                .addOnFailureListener(onFailure);
+    }
+
+    /**
+     * Check whether the current user has already reviewed a gem.
+     * Returns the existing Review via onSuccess (null if none found).
+     */
+    public void fetchMyReview(String userId, String gemId,
+                              OnSuccessListener<Review> onSuccess, OnFailureListener onFailure) {
+        String docId = userId + "_" + gemId;
+        db.collection(COLLECTION_REVIEWS).document(docId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Review r = doc.toObject(Review.class);
+                        if (r != null) r.setId(doc.getId());
+                        onSuccess.onSuccess(r);
+                    } else {
+                        onSuccess.onSuccess(null);
+                    }
+                })
+                .addOnFailureListener(onFailure);
+    }
+
+    /**
+     * Fetch all reviews for a gem, newest first.
+     */
+    public void fetchReviewsForGem(String gemId,
+                                   OnSuccessListener<QuerySnapshot> onSuccess,
+                                   OnFailureListener onFailure) {
+        db.collection(COLLECTION_REVIEWS)
+                .whereEqualTo("gemId", gemId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+
+    /**
+     * Pull all reviews for a gem and compute a new average, then write it back.
+     */
+    private void recalculateRating(String gemId,
+                                   OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        db.collection(COLLECTION_REVIEWS).whereEqualTo("gemId", gemId).get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) { onSuccess.onSuccess(null); return; }
+                    double total = 0;
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        Double r = doc.getDouble("rating");
+                        if (r != null) total += r;
+                    }
+                    double avg   = total / snap.size();
+                    int    count = snap.size();
+                    Map<String, Object> update = new HashMap<>();
+                    update.put("rating",      avg);
+                    update.put("ratingCount", count);
+                    db.collection(COLLECTION_GEMS).document(gemId).update(update)
+                            .addOnSuccessListener(onSuccess)
+                            .addOnFailureListener(onFailure);
+                })
+                .addOnFailureListener(onFailure);
+    }
+
+    // ── STORAGE ──────────────────────────────────────────────────────────────
+
     public StorageReference getImageUploadRef() {
-        return storage.getReference().child("gem_images/" + UUID.randomUUID().toString() + ".jpg");
+        return storage.getReference().child("gem_images/" + UUID.randomUUID() + ".jpg");
     }
 }

@@ -17,51 +17,48 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HiddenSpot"
         android:usesCleartextTraffic="true">
-
-        <!-- Splash -->
+        <!--  Splash  -->
         <activity
             android:name=".activities.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.HiddenSpot.Splash"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.HiddenSpot.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Auth -->
+        <!--  Auth  -->
         <activity
             android:name=".activities.AuthActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
-        <!-- Main (holds bottom nav + fragments) -->
+        <!--  Main  -->
         <activity
             android:name=".activities.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
-        <!-- Place Details -->
+        <!--  Place Details  -->
         <activity
             android:name=".activities.PlaceDetailsActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
-        <!-- Add Place -->
+        <!--  Add Place  -->
         <activity
             android:name=".activities.AddPlaceActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
-        <!-- Google Maps API Key — replace YOUR_MAPS_KEY -->
+        <!--  NEW: Map View  -->
+        <activity
+            android:name=".activities.MapActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <!--  Google Maps API Key — replace YOUR_MAPS_KEY with your actual key  -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_MAPS_KEY" />
-
     </application>
-
 </manifest>

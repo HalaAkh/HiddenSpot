@@ -7,13 +7,16 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.hiddenspot.app.R;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 import java.lang.NullPointerException;
@@ -37,10 +40,16 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
   public final ImageButton btnFavorite;
 
   @NonNull
+  public final MaterialButton btnMapView;
+
+  @NonNull
   public final MaterialButton btnMaps;
 
   @NonNull
   public final ImageButton btnShare;
+
+  @NonNull
+  public final MaterialButton btnSubmitReview;
 
   @NonNull
   public final MaterialButton btnUpvote;
@@ -49,10 +58,19 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
   public final DotsIndicator dotsIndicator;
 
   @NonNull
+  public final TextInputEditText etReviewComment;
+
+  @NonNull
   public final ImageView ivHero;
 
   @NonNull
   public final LinearLayout layoutPhone;
+
+  @NonNull
+  public final RatingBar ratingBarInput;
+
+  @NonNull
+  public final RecyclerView rvReviews;
 
   @NonNull
   public final TextView tvAddress;
@@ -62,6 +80,9 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
 
   @NonNull
   public final TextView tvDescription;
+
+  @NonNull
+  public final TextView tvNoReviews;
 
   @NonNull
   public final TextView tvPhone;
@@ -81,36 +102,49 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
   @NonNull
   public final TextView tvRating;
 
+  @NonNull
+  public final TextView tvReviewCount;
+
   private ActivityPlaceDetailsBinding(@NonNull NestedScrollView rootView,
       @NonNull ImageButton btnBack, @NonNull MaterialButton btnCall,
       @NonNull MaterialButton btnDownvote, @NonNull ImageButton btnFavorite,
-      @NonNull MaterialButton btnMaps, @NonNull ImageButton btnShare,
+      @NonNull MaterialButton btnMapView, @NonNull MaterialButton btnMaps,
+      @NonNull ImageButton btnShare, @NonNull MaterialButton btnSubmitReview,
       @NonNull MaterialButton btnUpvote, @NonNull DotsIndicator dotsIndicator,
-      @NonNull ImageView ivHero, @NonNull LinearLayout layoutPhone, @NonNull TextView tvAddress,
-      @NonNull TextView tvCategoryBadge, @NonNull TextView tvDescription, @NonNull TextView tvPhone,
-      @NonNull TextView tvPlaceName, @NonNull TextView tvPostedDate,
-      @NonNull TextView tvPosterInitial, @NonNull TextView tvPosterName,
-      @NonNull TextView tvRating) {
+      @NonNull TextInputEditText etReviewComment, @NonNull ImageView ivHero,
+      @NonNull LinearLayout layoutPhone, @NonNull RatingBar ratingBarInput,
+      @NonNull RecyclerView rvReviews, @NonNull TextView tvAddress,
+      @NonNull TextView tvCategoryBadge, @NonNull TextView tvDescription,
+      @NonNull TextView tvNoReviews, @NonNull TextView tvPhone, @NonNull TextView tvPlaceName,
+      @NonNull TextView tvPostedDate, @NonNull TextView tvPosterInitial,
+      @NonNull TextView tvPosterName, @NonNull TextView tvRating, @NonNull TextView tvReviewCount) {
     this.rootView = rootView;
     this.btnBack = btnBack;
     this.btnCall = btnCall;
     this.btnDownvote = btnDownvote;
     this.btnFavorite = btnFavorite;
+    this.btnMapView = btnMapView;
     this.btnMaps = btnMaps;
     this.btnShare = btnShare;
+    this.btnSubmitReview = btnSubmitReview;
     this.btnUpvote = btnUpvote;
     this.dotsIndicator = dotsIndicator;
+    this.etReviewComment = etReviewComment;
     this.ivHero = ivHero;
     this.layoutPhone = layoutPhone;
+    this.ratingBarInput = ratingBarInput;
+    this.rvReviews = rvReviews;
     this.tvAddress = tvAddress;
     this.tvCategoryBadge = tvCategoryBadge;
     this.tvDescription = tvDescription;
+    this.tvNoReviews = tvNoReviews;
     this.tvPhone = tvPhone;
     this.tvPlaceName = tvPlaceName;
     this.tvPostedDate = tvPostedDate;
     this.tvPosterInitial = tvPosterInitial;
     this.tvPosterName = tvPosterName;
     this.tvRating = tvRating;
+    this.tvReviewCount = tvReviewCount;
   }
 
   @Override
@@ -164,6 +198,12 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btn_map_view;
+      MaterialButton btnMapView = ViewBindings.findChildViewById(rootView, id);
+      if (btnMapView == null) {
+        break missingId;
+      }
+
       id = R.id.btn_maps;
       MaterialButton btnMaps = ViewBindings.findChildViewById(rootView, id);
       if (btnMaps == null) {
@@ -173,6 +213,12 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
       id = R.id.btn_share;
       ImageButton btnShare = ViewBindings.findChildViewById(rootView, id);
       if (btnShare == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_submit_review;
+      MaterialButton btnSubmitReview = ViewBindings.findChildViewById(rootView, id);
+      if (btnSubmitReview == null) {
         break missingId;
       }
 
@@ -188,6 +234,12 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.et_review_comment;
+      TextInputEditText etReviewComment = ViewBindings.findChildViewById(rootView, id);
+      if (etReviewComment == null) {
+        break missingId;
+      }
+
       id = R.id.iv_hero;
       ImageView ivHero = ViewBindings.findChildViewById(rootView, id);
       if (ivHero == null) {
@@ -197,6 +249,18 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
       id = R.id.layout_phone;
       LinearLayout layoutPhone = ViewBindings.findChildViewById(rootView, id);
       if (layoutPhone == null) {
+        break missingId;
+      }
+
+      id = R.id.rating_bar_input;
+      RatingBar ratingBarInput = ViewBindings.findChildViewById(rootView, id);
+      if (ratingBarInput == null) {
+        break missingId;
+      }
+
+      id = R.id.rv_reviews;
+      RecyclerView rvReviews = ViewBindings.findChildViewById(rootView, id);
+      if (rvReviews == null) {
         break missingId;
       }
 
@@ -215,6 +279,12 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
       id = R.id.tv_description;
       TextView tvDescription = ViewBindings.findChildViewById(rootView, id);
       if (tvDescription == null) {
+        break missingId;
+      }
+
+      id = R.id.tv_no_reviews;
+      TextView tvNoReviews = ViewBindings.findChildViewById(rootView, id);
+      if (tvNoReviews == null) {
         break missingId;
       }
 
@@ -254,10 +324,17 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_review_count;
+      TextView tvReviewCount = ViewBindings.findChildViewById(rootView, id);
+      if (tvReviewCount == null) {
+        break missingId;
+      }
+
       return new ActivityPlaceDetailsBinding((NestedScrollView) rootView, btnBack, btnCall,
-          btnDownvote, btnFavorite, btnMaps, btnShare, btnUpvote, dotsIndicator, ivHero,
-          layoutPhone, tvAddress, tvCategoryBadge, tvDescription, tvPhone, tvPlaceName,
-          tvPostedDate, tvPosterInitial, tvPosterName, tvRating);
+          btnDownvote, btnFavorite, btnMapView, btnMaps, btnShare, btnSubmitReview, btnUpvote,
+          dotsIndicator, etReviewComment, ivHero, layoutPhone, ratingBarInput, rvReviews, tvAddress,
+          tvCategoryBadge, tvDescription, tvNoReviews, tvPhone, tvPlaceName, tvPostedDate,
+          tvPosterInitial, tvPosterName, tvRating, tvReviewCount);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
