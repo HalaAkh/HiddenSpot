@@ -57,7 +57,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- City Spinner -->
-        <androidx.appcompat.widget.AppCompatSpinner
+        <com.hiddenspot.app.views.LimitedHeightSpinner
             android:id="@+id/spinner_city"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -65,7 +65,8 @@
             android:background="@drawable/bg_card_rounded"
             android:paddingLeft="12dp"
             android:paddingRight="12dp"
-            android:fontFamily="@font/inter"/>
+            android:fontFamily="@font/inter"
+            app:maxPopupHeight="180dp"/>
 
         <!-- Category Chips -->
         <HorizontalScrollView

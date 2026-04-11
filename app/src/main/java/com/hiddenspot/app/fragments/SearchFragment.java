@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class SearchFragment extends Fragment {
 
@@ -40,14 +41,15 @@ public class SearchFragment extends Fragment {
     private TextInputEditText etSearch;
     private Spinner spinnerCity;
     private PlaceAdapter adapter;
+    private ArrayAdapter<String> cityAdapter;
     private final List<Place> allPlaces      = new ArrayList<>();
     private final List<Place> filteredPlaces = new ArrayList<>();
+    private final List<String> cityOptions   = new ArrayList<>();
     private String selectedCategory = "All";
     private String selectedCity     = "All";
 
     private static final String[] CATEGORIES = {
             "All","Restaurant","Garden","Café","Viewpoint","Park","Beach","Library","Shop","Historical"};
-    private static final String[] CITIES = {"All","Tripoli","Beirut","Byblos","Batroun"};
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -69,13 +71,14 @@ public class SearchFragment extends Fragment {
         rvResults.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvResults.setAdapter(adapter);
 
-        ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, CITIES);
+        cityOptions.add("All");
+        cityAdapter = new ArrayAdapter<>(
+                requireContext(), android.R.layout.simple_spinner_item, cityOptions);
         cityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCity.setAdapter(cityAdapter);
         spinnerCity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                selectedCity = CITIES[pos]; applyFilters(); }
+                selectedCity = cityOptions.get(pos); applyFilters(); }
             @Override public void onNothingSelected(AdapterView<?> p) {}
         });
 
@@ -135,8 +138,31 @@ public class SearchFragment extends Fragment {
                     allPlaces.add(p);
                 }
             }
+            updateCityOptions();
             applyFilters();
         }, e -> Toast.makeText(requireContext(), "Error loading", Toast.LENGTH_SHORT).show());
+    }
+
+    private void updateCityOptions() {
+        String previousSelection = selectedCity;
+        TreeSet<String> cities = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        for (Place place : allPlaces) {
+            String city = place.getCity();
+            if (city == null) continue;
+            city = city.trim();
+            if (!city.isEmpty()) {
+                cities.add(city);
+            }
+        }
+
+        cityOptions.clear();
+        cityOptions.add("All");
+        cityOptions.addAll(cities);
+        cityAdapter.notifyDataSetChanged();
+
+        selectedCity = cityOptions.contains(previousSelection) ? previousSelection : "All";
+        spinnerCity.setSelection(cityOptions.indexOf(selectedCity), false);
     }
 
     private void buildChips() {
