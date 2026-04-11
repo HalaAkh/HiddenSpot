@@ -290,4 +290,48 @@ public class FirebaseHelper {
     public StorageReference getImageUploadRef() {
         return storage.getReference().child("gem_images/" + UUID.randomUUID() + ".jpg");
     }
+    public void fetchUserProfile(String uid,
+                                 OnSuccessListener<com.google.firebase.firestore.DocumentSnapshot> onSuccess,
+                                 OnFailureListener onFailure) {
+        db.collection(COLLECTION_USERS).document(uid).get()
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+
+
+    public void updateUserProfile(String uid, java.util.Map<String, Object> updates,
+                                  OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        db.collection(COLLECTION_USERS).document(uid)
+                .update(updates)
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+    public void updateAuthProfile(String displayName, String avatarUrl,
+                                  OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        FirebaseUser user = getCurrentUser();
+        if (user == null) { onFailure.onFailure(new Exception("Not logged in")); return; }
+        UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
+                .setDisplayName(displayName)
+                .setPhotoUri(avatarUrl != null && !avatarUrl.isEmpty()
+                        ? android.net.Uri.parse(avatarUrl) : null)
+                .build();
+        user.updateProfile(req)
+                .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+    public void syncUserProfileToGems(String uid, String displayName, String avatarUrl,
+                                      OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        java.util.Map<String, Object> updates = new HashMap<>();
+        updates.put("userName", displayName);
+        updates.put("userAvatar", avatarUrl != null ? avatarUrl : "");
+        db.collection(COLLECTION_GEMS).whereEqualTo("userId", uid).get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.isEmpty()) { onSuccess.onSuccess(null); return; }
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        db.collection(COLLECTION_GEMS).document(doc.getId()).update(updates);
+                    }
+                    onSuccess.onSuccess(null);
+                })
+                .addOnFailureListener(onFailure);
+    }
 }
