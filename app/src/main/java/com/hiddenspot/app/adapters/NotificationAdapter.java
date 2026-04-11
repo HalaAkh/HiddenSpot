@@ -48,12 +48,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         AppNotification notification = notifications.get(position);
-        String actor = notification.getActorName() != null && !notification.getActorName().trim().isEmpty()
-                ? notification.getActorName().trim() : "Someone";
-        String action = notification.getActionType() != null ? notification.getActionType() : "activity";
-        String post = notification.getGemName() != null && !notification.getGemName().trim().isEmpty()
-                ? notification.getGemName().trim() : "your post";
-
         holder.tvMessage.setText(notification.getMessage());
         holder.tvTime.setText(notification.getFormattedTimestamp());
         holder.itemView.setOnClickListener(v -> {
@@ -70,13 +64,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     static class NotificationViewHolder extends RecyclerView.ViewHolder {
         final TextView tvMessage;
-        final TextView tvMeta;
         final TextView tvTime;
 
         NotificationViewHolder(@NonNull View itemView) {
             super(itemView);
             tvMessage = itemView.findViewById(R.id.tv_notification_message);
-            tvMeta = itemView.findViewById(R.id.tv_notification_meta);
             tvTime = itemView.findViewById(R.id.tv_notification_time);
         }
     }

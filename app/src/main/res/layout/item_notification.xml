@@ -20,19 +20,10 @@
         android:textSize="13sp" />
 
     <TextView
-        android:id="@+id/tv_notification_meta"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:fontFamily="@font/inter"
-        android:textColor="@color/muted_foreground"
-        android:textSize="11sp" />
-
-    <TextView
         android:id="@+id/tv_notification_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
         android:fontFamily="@font/inter"
         android:textColor="@color/secondary"
         android:textSize="11sp" />
