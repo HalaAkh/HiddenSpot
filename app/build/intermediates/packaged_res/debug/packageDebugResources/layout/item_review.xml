@@ -1,0 +1,82 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
+    <!--  Divider above each review (except first — handled in adapter)  -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="12dp"
+        android:background="@color/border_color" />
+    <!--  Row: avatar + name + date + stars  -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <!--  Avatar circle with initial letter  -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp">
+
+            <TextView
+                android:id="@+id/tv_reviewer_initial"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@color/surface_warm"
+                android:fontFamily="@font/poppins_bold"
+                android:gravity="center"
+                android:textColor="@color/primary"
+                android:textSize="15sp" />
+        </FrameLayout>
+        <!--  Name + date  -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_reviewer_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:textColor="@color/foreground"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_review_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter"
+                android:textColor="@color/muted_foreground"
+                android:textSize="11sp" />
+        </LinearLayout>
+        <!--  Star rating (read-only)  -->
+        <RatingBar
+            android:id="@+id/rating_bar_review"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:progressTint="@color/star_color"
+            android:secondaryProgressTint="@color/star_color"
+            android:stepSize="0.5" />
+    </LinearLayout>
+    <!--  Comment text  -->
+    <TextView
+        android:id="@+id/tv_review_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/inter"
+        android:lineSpacingMultiplier="1.4"
+        android:textColor="@color/foreground"
+        android:textSize="13sp"
+        android:visibility="gone" />
+</LinearLayout>

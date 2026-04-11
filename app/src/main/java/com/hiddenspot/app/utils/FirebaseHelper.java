@@ -61,23 +61,29 @@ public class FirebaseHelper {
                 .addOnSuccessListener(r -> {
                     FirebaseUser user = r.getUser();
                     if (user == null) { onFailure.onFailure(new Exception("User creation failed")); return; }
-                    String uid = user.getUid();
-
+                    
                     // Set display name on FirebaseAuth profile
                     UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                             .setDisplayName(username).build();
                     user.updateProfile(profileUpdates);
-
-                    Map<String, Object> userDoc = new HashMap<>();
-                    userDoc.put("uid",         uid);
-                    userDoc.put("displayName", username);
-                    userDoc.put("email",       email);
-                    userDoc.put("gemsCount",   0);
-                    userDoc.put("avatarBase64", "");   // NEW: stores base64 avatar
-                    db.collection(COLLECTION_USERS).document(uid).set(userDoc)
-                            .addOnSuccessListener(v -> onSuccess.onSuccess(null))
-                            .addOnFailureListener(onFailure);
+                    
+                    // Note: We don't create the Firestore document here anymore.
+                    // It will be created upon first login/verification check in AuthActivity.
+                    onSuccess.onSuccess(null);
                 }).addOnFailureListener(onFailure);
+    }
+
+    public void createUserDocument(String uid, String email, String username,
+                                  OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        Map<String, Object> userDoc = new HashMap<>();
+        userDoc.put("uid",         uid);
+        userDoc.put("displayName", username);
+        userDoc.put("email",       email);
+        userDoc.put("gemsCount",   0);
+        userDoc.put("avatarBase64", "");
+        db.collection(COLLECTION_USERS).document(uid).set(userDoc)
+                .addOnSuccessListener(v -> onSuccess.onSuccess(null))
+                .addOnFailureListener(onFailure);
     }
 
     public void signOut() { auth.signOut(); }

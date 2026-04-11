@@ -150,7 +150,7 @@
       <entry key="_C:/Users/user/StudioProjects/HiddenSpot" value="3CAUdYv5hS9AslB0q5KyuOwFdUf" />
     </persistenceIdMap>
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[LocalEmulator::path=C:\Users\user\.android\avd\Pixel_9a.avd]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[PhysicalDevice::serial=P7U48P89QSY5H67T]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -202,7 +202,6 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/user/StudioProjects/HiddenSpot",
     "settings.editor.selected.configurable": "com.android.studio.ml.bot.mainConfigurable",
