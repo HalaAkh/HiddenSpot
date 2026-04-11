@@ -263,6 +263,21 @@
             android:clipToPadding="false"
             android:nestedScrollingEnabled="false"/>
 
+        <TextView
+            android:id="@+id/tv_no_posts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="You have no posts! Share gems with others now."
+            android:textColor="@color/muted_foreground"
+            android:textSize="13sp"
+            android:fontFamily="@font/inter"
+            android:visibility="gone"/>
+
         <!-- Sign Out Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_logout"

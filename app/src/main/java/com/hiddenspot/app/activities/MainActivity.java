@@ -23,8 +23,11 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Listener for real-time notifications from Firestore
     private ListenerRegistration notificationsListener;
+    // Stores already seen notification IDs to avoid duplicates
     private final Set<String> knownNotificationIds = new HashSet<>();
+    // Flag to skip showing old notifications on first load
     private boolean notificationsPrimed;
 
     @Override
@@ -62,9 +65,11 @@ public class MainActivity extends AppCompatActivity {
                 ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
         if (uid == null) return;
 
+        // Listen to notifications collection in real-time
         notificationsListener = FirebaseHelper.getInstance().listenForNotifications(uid, (snap, error) -> {
             if (error != null || snap == null) return;
 
+            // First load → store existing notifications but don't show them
             if (!notificationsPrimed) {
                 for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
                     knownNotificationIds.add(doc.getId());
@@ -95,3 +100,10 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 }
+
+// startNotificationsListener:
+// get current user ID
+// listen to Firestore notifications
+// first load → store old notifications (don’t show)
+// after that → detect NEW ones only
+// show new notifications using Toast

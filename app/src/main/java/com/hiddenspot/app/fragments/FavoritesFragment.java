@@ -49,11 +49,14 @@ public class FavoritesFragment extends Fragment {
         adapter = new PlaceAdapter(requireContext(), favoritesList);
         rvFavorites.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvFavorites.setAdapter(adapter);
+
+        //click on favorites button (heart) to remove post from favorites
         adapter.setOnFavoriteClickListener((place, pos) -> {
             String uid = FirebaseHelper.getInstance().getCurrentUser() != null
                     ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
             if (uid == null || place.getId() == null) return;
 
+            // remove it
             FirebaseHelper.getInstance().unsaveGem(uid, place.getId(),
                     v -> requireActivity().runOnUiThread(this::loadFavorites),
                     e -> requireActivity().runOnUiThread(() ->
@@ -67,7 +70,7 @@ public class FavoritesFragment extends Fragment {
         super.onResume();
         loadFavorites();
     }
-
+    // reload list so that post disappears
     private void loadFavorites() {
         String uid = FirebaseHelper.getInstance().getCurrentUser() != null
                 ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;

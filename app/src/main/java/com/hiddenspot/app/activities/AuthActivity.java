@@ -52,6 +52,7 @@ public class AuthActivity extends AppCompatActivity {
                 tilEmail.setError("Email is required");
                 return;
             } else {
+                // otherwise, clear any previous error.
                 tilEmail.setError(null);
             }
 

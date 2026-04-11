@@ -22,18 +22,24 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        // Get references
         ImageView ivLogo   = findViewById(R.id.iv_logo);
         TextView tvName    = findViewById(R.id.tv_app_name);
         TextView tvTagline = findViewById(R.id.tv_tagline);
 
+        // Alpha: fade, scale: zoom effect
         ObjectAnimator logoAlpha  = ObjectAnimator.ofFloat(ivLogo,   View.ALPHA,         0f, 1f);
         ObjectAnimator logoScaleX = ObjectAnimator.ofFloat(ivLogo,   View.SCALE_X,    0.5f, 1f);
         ObjectAnimator logoScaleY = ObjectAnimator.ofFloat(ivLogo,   View.SCALE_Y,    0.5f, 1f);
+
+        // Play all animations together
         AnimatorSet logoSet = new AnimatorSet();
         logoSet.playTogether(logoAlpha, logoScaleX, logoScaleY);
-        logoSet.setDuration(600);
+        logoSet.setDuration(600); // lasts for 0.6 seconds
         logoSet.start();
 
+        // APP NAME ANIMATION
+        // Start slightly below (translationY = 20f)
         tvName.setTranslationY(20f);
         AnimatorSet nameSet = new AnimatorSet();
         nameSet.playTogether(
@@ -43,6 +49,7 @@ public class SplashActivity extends AppCompatActivity {
         nameSet.setStartDelay(300);
         nameSet.start();
 
+        // Similar to name but smaller movement and later start
         tvTagline.setTranslationY(10f);
         AnimatorSet tagSet = new AnimatorSet();
         tagSet.playTogether(
@@ -52,12 +59,18 @@ public class SplashActivity extends AppCompatActivity {
         tagSet.setStartDelay(600);
         tagSet.start();
 
+        // Wait 2.2 seconds before moving to next screen
         new Handler().postDelayed(() -> {
+            // Check if user is already logged in via Firebase
             FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+
+            // Decide which activity to open: if user is authenticated open Main activity; if not open the login activity
             Intent intent = user != null
                     ? new Intent(this, MainActivity.class)
                     : new Intent(this, AuthActivity.class);
             startActivity(intent);
+
+            // Apply fade transition between activities
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         }, 2200);

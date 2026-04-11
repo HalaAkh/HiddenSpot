@@ -21,6 +21,7 @@ import com.hiddenspot.app.activities.PlaceDetailsActivity;
 import com.hiddenspot.app.models.Place;
 
 import java.util.List;
+import java.util.Locale;
 
 public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHolder> {
 
@@ -125,7 +126,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
             tvPlaceName.setText(place.getName());
             tvCity.setText(place.getCity());
             tvDescription.setText(place.getDescription());
-            tvRating.setText(String.valueOf(place.getRating()));
+            tvRating.setText(String.format(Locale.getDefault(), "%.1f", place.getRating()));
             tvRatingCount.setText("(" + place.getRatingCount() + ")");
             tvUpvotes.setText(String.valueOf(place.getUpvotes()));
             tvDownvotes.setText(String.valueOf(place.getDownvotes()));

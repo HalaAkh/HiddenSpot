@@ -1,49 +1,23 @@
 package com.hiddenspot.app.adapters;
 
 import android.content.Context;
-<<<<<<< HEAD
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-=======
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
->>>>>>> 93c6f54 (Modified)
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-<<<<<<< HEAD
-=======
 import com.bumptech.glide.Glide;
->>>>>>> 93c6f54 (Modified)
 import com.hiddenspot.app.R;
 import com.hiddenspot.app.models.Review;
 
 import java.util.List;
 
-<<<<<<< HEAD
-public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
-
-    private final Context context;
-    private List<Review> reviews;
-
-    public ReviewAdapter(Context context, List<Review> reviews) {
-        this.context = context;
-        this.reviews = reviews;
-    }
-
-    public void updateReviews(List<Review> newReviews) {
-        this.reviews = newReviews;
-        notifyDataSetChanged();
-    }
-
-=======
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
@@ -61,6 +35,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     private List<Review> reviews;
     private OnDeleteClickListener onDeleteClickListener;
     private OnReviewClickListener onReviewClickListener;
+    private boolean deleteEnabled = true;
 
     public ReviewAdapter(Context context, List<Review> reviews, String currentUserId) {
         this.context = context;
@@ -81,7 +56,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         this.onReviewClickListener = onReviewClickListener;
     }
 
->>>>>>> 93c6f54 (Modified)
+    public void setDeleteEnabled(boolean deleteEnabled) {
+        this.deleteEnabled = deleteEnabled;
+    }
+
     @NonNull
     @Override
     public ReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -91,18 +69,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
-<<<<<<< HEAD
-        Review r = reviews.get(position);
-        String name = r.getUserName() != null ? r.getUserName() : "Anonymous";
-        holder.tvInitial.setText(name.substring(0, 1).toUpperCase());
-        holder.tvName.setText(name);
-        holder.tvDate.setText(r.getFormattedDate());
-        holder.ratingBar.setRating(r.getRating());
-        holder.tvComment.setText(r.getComment() != null ? r.getComment() : "");
-        holder.tvComment.setVisibility(
-                (r.getComment() != null && !r.getComment().trim().isEmpty())
-                        ? View.VISIBLE : View.GONE);
-=======
         Review review = reviews.get(position);
         String name = review.getUserName() != null && !review.getUserName().trim().isEmpty()
                 ? review.getUserName() : "Anonymous";
@@ -117,7 +83,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         String comment = review.getComment() != null ? review.getComment().trim() : "";
         holder.tvComment.setText(comment);
         holder.tvComment.setVisibility(comment.isEmpty() ? View.GONE : View.VISIBLE);
-        boolean canDelete = currentUserId != null && currentUserId.equals(review.getUserId());
+        boolean canDelete = deleteEnabled
+                && currentUserId != null
+                && currentUserId.equals(review.getUserId());
         holder.btnDelete.setVisibility(canDelete ? View.VISIBLE : View.GONE);
         holder.btnDelete.setOnClickListener(v -> {
             if (canDelete && onDeleteClickListener != null) {
@@ -129,7 +97,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
                 onReviewClickListener.onReviewClick(review, holder.getBindingAdapterPosition());
             }
         });
->>>>>>> 93c6f54 (Modified)
     }
 
     @Override
@@ -137,19 +104,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return reviews != null ? reviews.size() : 0;
     }
 
-<<<<<<< HEAD
-    static class ReviewViewHolder extends RecyclerView.ViewHolder {
-        final TextView tvInitial, tvName, tvDate, tvComment;
-        final RatingBar ratingBar;
-
-        ReviewViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvInitial = itemView.findViewById(R.id.tv_reviewer_initial);
-            tvName = itemView.findViewById(R.id.tv_reviewer_name);
-            tvDate = itemView.findViewById(R.id.tv_review_date);
-            ratingBar = itemView.findViewById(R.id.rating_bar_review);
-            tvComment = itemView.findViewById(R.id.tv_review_comment);
-=======
     private void bindAvatar(@NonNull ReviewViewHolder holder, String avatar) {
         if (avatar != null && !avatar.trim().isEmpty()) {
             try {
@@ -192,7 +146,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             tvComment = itemView.findViewById(R.id.tv_review_comment);
             ratingBar = itemView.findViewById(R.id.rating_bar_review);
             btnDelete = itemView.findViewById(R.id.btn_delete_review);
->>>>>>> 93c6f54 (Modified)
         }
     }
 }

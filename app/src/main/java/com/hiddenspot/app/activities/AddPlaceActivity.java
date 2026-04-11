@@ -252,8 +252,23 @@ public class AddPlaceActivity extends AppCompatActivity {
         if (!imageData.isEmpty()) images.add(imageData);
 
         String displayName = user.getDisplayName() != null ? user.getDisplayName() : "Anonymous";
+        String fallbackAvatar = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+
+        FirebaseHelper.getInstance().fetchUserProfile(user.getUid(), snap -> {
+            String avatarUrl = snap.getString("avatarUrl");
+            if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+                avatarUrl = fallbackAvatar;
+            }
+            savePlaceDocument(name, city, address, phone, desc, images, user.getUid(), displayName, avatarUrl);
+        }, e -> savePlaceDocument(name, city, address, phone, desc, images, user.getUid(), displayName, fallbackAvatar));
+    }
+
+    private void savePlaceDocument(String name, String city, String address, String phone,
+                                   String desc, List<String> images, String userId,
+                                   String displayName, String avatarUrl) {
         Place place = new Place(name, city, address, phone, desc,
-                selectedCategory, images, user.getUid(), displayName);
+                selectedCategory, images, userId, displayName);
+        place.setUserAvatar(avatarUrl != null ? avatarUrl : "");
 
         FirebaseHelper.getInstance().addGem(place,
                 docRef -> runOnUiThread(() -> {
