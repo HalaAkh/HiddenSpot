@@ -129,8 +129,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    app:startIconDrawable="@drawable/ic_map_pin"
-                    app:startIconTint="@color/muted_foreground">
+                    app:startIconDrawable="@android:drawable/sym_action_email"
+                    app:startIconTint="#9D9A95">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_email"
@@ -149,8 +149,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    app:startIconDrawable="@drawable/ic_settings"
-                    app:startIconTint="@color/muted_foreground">
+                    app:startIconDrawable="@android:drawable/ic_menu_info_details"
+                    app:startIconTint="#6A6464">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_bio"

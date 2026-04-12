@@ -2,6 +2,7 @@ R_DEF: Internal format may change without notice
 local
 array categories
 array cities
+attr? maxPopupHeight
 color accent
 color accent_foreground
 color background
@@ -50,6 +51,7 @@ drawable ic_add_circle
 drawable ic_arrow_left
 drawable ic_camera
 drawable ic_chevron_right
+drawable ic_edit
 drawable ic_filter
 drawable ic_heart
 drawable ic_heart_filled
@@ -74,16 +76,17 @@ font poppins
 font poppins_bold
 font poppins_regular
 font poppins_semibold
-id avatar_container
 id bottom_nav
 id btn_action
 id btn_back
 id btn_call
 id btn_change_photo
+id btn_delete_post
+id btn_delete_review
 id btn_downvote
+id btn_edit
 id btn_favorite
 id btn_logout
-id btn_map_view
 id btn_maps
 id btn_open_camera
 id btn_save
@@ -111,7 +114,9 @@ id iv_avatar
 id iv_hero
 id iv_logo
 id iv_place
+id iv_poster_avatar
 id iv_preview
+id iv_reviewer_avatar
 id layout_categories
 id layout_empty
 id layout_header
@@ -131,6 +136,7 @@ id row_ratings
 id rv_favorites
 id rv_my_posts
 id rv_my_ratings
+id rv_notifications
 id rv_places
 id rv_results
 id rv_reviews
@@ -142,21 +148,23 @@ id til_username
 id tv_address
 id tv_app_name
 id tv_avatar_letter
+id tv_bio
 id tv_category_badge
 id tv_city
 id tv_count
 id tv_description
 id tv_downvotes
-id tv_edit_icon
-id tv_edit_label
+id tv_favorites_count
 id tv_forgot
-id tv_help_icon
-id tv_help_label
+id tv_header_title
+id tv_help_message
 id tv_map_title
+id tv_no_notifications
+id tv_no_posts
 id tv_no_ratings
 id tv_no_reviews
-id tv_notif_icon
-id tv_notif_label
+id tv_notification_message
+id tv_notification_time
 id tv_phone
 id tv_place_name
 id tv_places_count
@@ -166,12 +174,11 @@ id tv_poster_name
 id tv_posts_count
 id tv_rating
 id tv_rating_count
-id tv_ratings_icon
-id tv_ratings_label
 id tv_results_count
 id tv_review_comment
 id tv_review_count
 id tv_review_date
+id tv_review_place
 id tv_reviewer_initial
 id tv_reviewer_name
 id tv_row_icon
@@ -195,11 +202,14 @@ layout activity_map
 layout activity_place_details
 layout activity_splash
 layout dialog_edit_profile
+layout dialog_help_support
 layout dialog_my_ratings
+layout dialog_notifications
 layout fragment_favorites
 layout fragment_home
 layout fragment_profile
 layout fragment_search
+layout item_notification
 layout item_place_card
 layout item_profile_menu_row
 layout item_review
@@ -309,3 +319,4 @@ style Widget.HiddenSpot.Button.Outline
 style Widget.HiddenSpot.Card
 style Widget.HiddenSpot.Card.Elevated
 style Widget.HiddenSpot.TextInput
+styleable LimitedHeightSpinner maxPopupHeight

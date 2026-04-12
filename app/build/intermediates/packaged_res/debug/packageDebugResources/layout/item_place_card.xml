@@ -52,6 +52,19 @@
                 android:padding="7dp"
                 android:src="@drawable/ic_heart"/>
 
+            <ImageButton
+                android:id="@+id/btn_delete_post"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_circle_white"
+                android:contentDescription="Delete post"
+                android:padding="7dp"
+                android:src="@android:drawable/ic_menu_delete"
+                android:tint="#000000"
+                android:visibility="gone" />
+
         </FrameLayout>
 
         <!-- Card Content -->

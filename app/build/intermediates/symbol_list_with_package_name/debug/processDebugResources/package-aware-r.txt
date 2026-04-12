@@ -891,6 +891,7 @@ attr maxHeight
 attr maxImageSize
 attr maxLines
 attr maxNumber
+attr maxPopupHeight
 attr maxVelocity
 attr maxWidth
 attr measureWithLargestChild
@@ -3148,6 +3149,7 @@ drawable ic_camera
 drawable ic_chevron_right
 drawable ic_clear_black_24
 drawable ic_clock_black_24dp
+drawable ic_edit
 drawable ic_filter
 drawable ic_heart
 drawable ic_heart_filled
@@ -3354,7 +3356,6 @@ id auto
 id autoComplete
 id autoCompleteToEnd
 id autoCompleteToStart
-id avatar_container
 id barrier
 id baseline
 id beginOnFirstDraw
@@ -3376,10 +3377,12 @@ id btn_action
 id btn_back
 id btn_call
 id btn_change_photo
+id btn_delete_post
+id btn_delete_review
 id btn_downvote
+id btn_edit
 id btn_favorite
 id btn_logout
-id btn_map_view
 id btn_maps
 id btn_open_camera
 id btn_save
@@ -3549,7 +3552,9 @@ id iv_avatar
 id iv_hero
 id iv_logo
 id iv_place
+id iv_poster_avatar
 id iv_preview
+id iv_reviewer_avatar
 id jumpToEnd
 id jumpToStart
 id labeled
@@ -3709,6 +3714,7 @@ id row_ratings
 id rv_favorites
 id rv_my_posts
 id rv_my_ratings
+id rv_notifications
 id rv_places
 id rv_results
 id rv_reviews
@@ -3833,21 +3839,23 @@ id triangle
 id tv_address
 id tv_app_name
 id tv_avatar_letter
+id tv_bio
 id tv_category_badge
 id tv_city
 id tv_count
 id tv_description
 id tv_downvotes
-id tv_edit_icon
-id tv_edit_label
+id tv_favorites_count
 id tv_forgot
-id tv_help_icon
-id tv_help_label
+id tv_header_title
+id tv_help_message
 id tv_map_title
+id tv_no_notifications
+id tv_no_posts
 id tv_no_ratings
 id tv_no_reviews
-id tv_notif_icon
-id tv_notif_label
+id tv_notification_message
+id tv_notification_time
 id tv_phone
 id tv_place_name
 id tv_places_count
@@ -3857,12 +3865,11 @@ id tv_poster_name
 id tv_posts_count
 id tv_rating
 id tv_rating_count
-id tv_ratings_icon
-id tv_ratings_label
 id tv_results_count
 id tv_review_comment
 id tv_review_count
 id tv_review_date
+id tv_review_place
 id tv_reviewer_initial
 id tv_reviewer_name
 id tv_row_icon
@@ -4045,7 +4052,9 @@ layout design_navigation_menu_item
 layout design_text_input_end_icon
 layout design_text_input_start_icon
 layout dialog_edit_profile
+layout dialog_help_support
 layout dialog_my_ratings
+layout dialog_notifications
 layout dot_layout
 layout fragment_favorites
 layout fragment_home
@@ -4053,6 +4062,7 @@ layout fragment_profile
 layout fragment_search
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
+layout item_notification
 layout item_place_card
 layout item_profile_menu_row
 layout item_review
@@ -5638,6 +5648,7 @@ styleable KeyPosition curveFit drawPath framePosition keyPositionType motionTarg
 styleable KeyTimeCycle android_alpha android_translationX android_translationY android_scaleX android_scaleY android_rotation android_rotationX android_rotationY android_translationZ android_elevation curveFit framePosition motionProgress motionTarget transitionEasing transitionPathRotate waveDecay waveOffset wavePeriod wavePhase waveShape
 styleable KeyTrigger framePosition motionTarget motion_postLayoutCollision motion_triggerOnCollision onCross onNegativeCross onPositiveCross triggerId triggerReceiver triggerSlack viewTransitionOnCross viewTransitionOnNegativeCross viewTransitionOnPositiveCross
 styleable Layout android_orientation android_layout_width android_layout_height android_layout_marginLeft android_layout_marginTop android_layout_marginRight android_layout_marginBottom android_layout_marginStart android_layout_marginEnd barrierAllowsGoneWidgets barrierDirection barrierMargin chainUseRtl constraint_referenced_ids constraint_referenced_tags guidelineUseRtl layout_constrainedHeight layout_constrainedWidth layout_constraintBaseline_creator layout_constraintBaseline_toBaselineOf layout_constraintBaseline_toBottomOf layout_constraintBaseline_toTopOf layout_constraintBottom_creator layout_constraintBottom_toBottomOf layout_constraintBottom_toTopOf layout_constraintCircle layout_constraintCircleAngle layout_constraintCircleRadius layout_constraintDimensionRatio layout_constraintEnd_toEndOf layout_constraintEnd_toStartOf layout_constraintGuide_begin layout_constraintGuide_end layout_constraintGuide_percent layout_constraintHeight layout_constraintHeight_default layout_constraintHeight_max layout_constraintHeight_min layout_constraintHeight_percent layout_constraintHorizontal_bias layout_constraintHorizontal_chainStyle layout_constraintHorizontal_weight layout_constraintLeft_creator layout_constraintLeft_toLeftOf layout_constraintLeft_toRightOf layout_constraintRight_creator layout_constraintRight_toLeftOf layout_constraintRight_toRightOf layout_constraintStart_toEndOf layout_constraintStart_toStartOf layout_constraintTop_creator layout_constraintTop_toBottomOf layout_constraintTop_toTopOf layout_constraintVertical_bias layout_constraintVertical_chainStyle layout_constraintVertical_weight layout_constraintWidth layout_constraintWidth_default layout_constraintWidth_max layout_constraintWidth_min layout_constraintWidth_percent layout_editor_absoluteX layout_editor_absoluteY layout_goneMarginBaseline layout_goneMarginBottom layout_goneMarginEnd layout_goneMarginLeft layout_goneMarginRight layout_goneMarginStart layout_goneMarginTop layout_marginBaseline layout_wrapBehaviorInParent maxHeight maxWidth minHeight minWidth
+styleable LimitedHeightSpinner maxPopupHeight
 styleable LinearLayoutCompat android_gravity android_orientation android_baselineAligned android_baselineAlignedChildIndex android_weightSum divider dividerPadding measureWithLargestChild showDividers
 styleable LinearLayoutCompat_Layout android_layout_gravity android_layout_width android_layout_height android_layout_weight
 styleable LinearProgressIndicator indeterminateAnimationType indicatorDirectionLinear trackStopIndicatorSize

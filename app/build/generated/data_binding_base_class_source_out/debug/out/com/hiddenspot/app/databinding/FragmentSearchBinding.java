@@ -8,12 +8,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hiddenspot.app.R;
+import com.hiddenspot.app.views.LimitedHeightSpinner;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -35,14 +35,14 @@ public final class FragmentSearchBinding implements ViewBinding {
   public final RecyclerView rvResults;
 
   @NonNull
-  public final AppCompatSpinner spinnerCity;
+  public final LimitedHeightSpinner spinnerCity;
 
   @NonNull
   public final TextView tvResultsCount;
 
   private FragmentSearchBinding(@NonNull LinearLayout rootView, @NonNull TextInputEditText etSearch,
       @NonNull LinearLayout layoutCategories, @NonNull LinearLayout layoutEmpty,
-      @NonNull RecyclerView rvResults, @NonNull AppCompatSpinner spinnerCity,
+      @NonNull RecyclerView rvResults, @NonNull LimitedHeightSpinner spinnerCity,
       @NonNull TextView tvResultsCount) {
     this.rootView = rootView;
     this.etSearch = etSearch;
@@ -105,7 +105,7 @@ public final class FragmentSearchBinding implements ViewBinding {
       }
 
       id = R.id.spinner_city;
-      AppCompatSpinner spinnerCity = ViewBindings.findChildViewById(rootView, id);
+      LimitedHeightSpinner spinnerCity = ViewBindings.findChildViewById(rootView, id);
       if (spinnerCity == null) {
         break missingId;
       }

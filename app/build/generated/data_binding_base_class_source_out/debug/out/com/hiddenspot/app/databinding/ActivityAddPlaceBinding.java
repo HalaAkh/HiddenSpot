@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatSpinner;
@@ -56,12 +57,16 @@ public final class ActivityAddPlaceBinding implements ViewBinding {
   @NonNull
   public final AppCompatSpinner spinnerCategory;
 
+  @NonNull
+  public final TextView tvHeaderTitle;
+
   private ActivityAddPlaceBinding(@NonNull LinearLayout rootView, @NonNull ImageButton btnBack,
       @NonNull LinearLayout btnOpenCamera, @NonNull MaterialButton btnSubmit,
       @NonNull LinearLayout btnUploadGallery, @NonNull TextInputEditText etAddress,
       @NonNull TextInputEditText etCity, @NonNull TextInputEditText etDescription,
       @NonNull TextInputEditText etPhone, @NonNull TextInputEditText etPlaceName,
-      @NonNull ImageView ivPreview, @NonNull AppCompatSpinner spinnerCategory) {
+      @NonNull ImageView ivPreview, @NonNull AppCompatSpinner spinnerCategory,
+      @NonNull TextView tvHeaderTitle) {
     this.rootView = rootView;
     this.btnBack = btnBack;
     this.btnOpenCamera = btnOpenCamera;
@@ -74,6 +79,7 @@ public final class ActivityAddPlaceBinding implements ViewBinding {
     this.etPlaceName = etPlaceName;
     this.ivPreview = ivPreview;
     this.spinnerCategory = spinnerCategory;
+    this.tvHeaderTitle = tvHeaderTitle;
   }
 
   @Override
@@ -169,9 +175,15 @@ public final class ActivityAddPlaceBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_header_title;
+      TextView tvHeaderTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvHeaderTitle == null) {
+        break missingId;
+      }
+
       return new ActivityAddPlaceBinding((LinearLayout) rootView, btnBack, btnOpenCamera, btnSubmit,
           btnUploadGallery, etAddress, etCity, etDescription, etPhone, etPlaceName, ivPreview,
-          spinnerCategory);
+          spinnerCategory, tvHeaderTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

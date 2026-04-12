@@ -22,6 +22,9 @@ public final class ItemPlaceCardBinding implements ViewBinding {
   private final CardView rootView;
 
   @NonNull
+  public final ImageButton btnDeletePost;
+
+  @NonNull
   public final ImageButton btnFavorite;
 
   @NonNull
@@ -51,11 +54,13 @@ public final class ItemPlaceCardBinding implements ViewBinding {
   @NonNull
   public final TextView tvUpvotes;
 
-  private ItemPlaceCardBinding(@NonNull CardView rootView, @NonNull ImageButton btnFavorite,
-      @NonNull ImageView ivPlace, @NonNull TextView tvCategoryBadge, @NonNull TextView tvCity,
-      @NonNull TextView tvDescription, @NonNull TextView tvDownvotes, @NonNull TextView tvPlaceName,
-      @NonNull TextView tvRating, @NonNull TextView tvRatingCount, @NonNull TextView tvUpvotes) {
+  private ItemPlaceCardBinding(@NonNull CardView rootView, @NonNull ImageButton btnDeletePost,
+      @NonNull ImageButton btnFavorite, @NonNull ImageView ivPlace,
+      @NonNull TextView tvCategoryBadge, @NonNull TextView tvCity, @NonNull TextView tvDescription,
+      @NonNull TextView tvDownvotes, @NonNull TextView tvPlaceName, @NonNull TextView tvRating,
+      @NonNull TextView tvRatingCount, @NonNull TextView tvUpvotes) {
     this.rootView = rootView;
+    this.btnDeletePost = btnDeletePost;
     this.btnFavorite = btnFavorite;
     this.ivPlace = ivPlace;
     this.tvCategoryBadge = tvCategoryBadge;
@@ -95,6 +100,12 @@ public final class ItemPlaceCardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btn_delete_post;
+      ImageButton btnDeletePost = ViewBindings.findChildViewById(rootView, id);
+      if (btnDeletePost == null) {
+        break missingId;
+      }
+
       id = R.id.btn_favorite;
       ImageButton btnFavorite = ViewBindings.findChildViewById(rootView, id);
       if (btnFavorite == null) {
@@ -155,8 +166,9 @@ public final class ItemPlaceCardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemPlaceCardBinding((CardView) rootView, btnFavorite, ivPlace, tvCategoryBadge,
-          tvCity, tvDescription, tvDownvotes, tvPlaceName, tvRating, tvRatingCount, tvUpvotes);
+      return new ItemPlaceCardBinding((CardView) rootView, btnDeletePost, btnFavorite, ivPlace,
+          tvCategoryBadge, tvCity, tvDescription, tvDownvotes, tvPlaceName, tvRating, tvRatingCount,
+          tvUpvotes);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

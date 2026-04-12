@@ -4,6 +4,7 @@ package com.hiddenspot.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -12,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.hiddenspot.app.R;
+import de.hdodenhof.circleimageview.CircleImageView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -19,6 +21,12 @@ import java.lang.String;
 public final class ItemReviewBinding implements ViewBinding {
   @NonNull
   private final LinearLayout rootView;
+
+  @NonNull
+  public final ImageButton btnDeleteReview;
+
+  @NonNull
+  public final CircleImageView ivReviewerAvatar;
 
   @NonNull
   public final RatingBar ratingBarReview;
@@ -30,18 +38,26 @@ public final class ItemReviewBinding implements ViewBinding {
   public final TextView tvReviewDate;
 
   @NonNull
+  public final TextView tvReviewPlace;
+
+  @NonNull
   public final TextView tvReviewerInitial;
 
   @NonNull
   public final TextView tvReviewerName;
 
-  private ItemReviewBinding(@NonNull LinearLayout rootView, @NonNull RatingBar ratingBarReview,
+  private ItemReviewBinding(@NonNull LinearLayout rootView, @NonNull ImageButton btnDeleteReview,
+      @NonNull CircleImageView ivReviewerAvatar, @NonNull RatingBar ratingBarReview,
       @NonNull TextView tvReviewComment, @NonNull TextView tvReviewDate,
-      @NonNull TextView tvReviewerInitial, @NonNull TextView tvReviewerName) {
+      @NonNull TextView tvReviewPlace, @NonNull TextView tvReviewerInitial,
+      @NonNull TextView tvReviewerName) {
     this.rootView = rootView;
+    this.btnDeleteReview = btnDeleteReview;
+    this.ivReviewerAvatar = ivReviewerAvatar;
     this.ratingBarReview = ratingBarReview;
     this.tvReviewComment = tvReviewComment;
     this.tvReviewDate = tvReviewDate;
+    this.tvReviewPlace = tvReviewPlace;
     this.tvReviewerInitial = tvReviewerInitial;
     this.tvReviewerName = tvReviewerName;
   }
@@ -73,6 +89,18 @@ public final class ItemReviewBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btn_delete_review;
+      ImageButton btnDeleteReview = ViewBindings.findChildViewById(rootView, id);
+      if (btnDeleteReview == null) {
+        break missingId;
+      }
+
+      id = R.id.iv_reviewer_avatar;
+      CircleImageView ivReviewerAvatar = ViewBindings.findChildViewById(rootView, id);
+      if (ivReviewerAvatar == null) {
+        break missingId;
+      }
+
       id = R.id.rating_bar_review;
       RatingBar ratingBarReview = ViewBindings.findChildViewById(rootView, id);
       if (ratingBarReview == null) {
@@ -91,6 +119,12 @@ public final class ItemReviewBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_review_place;
+      TextView tvReviewPlace = ViewBindings.findChildViewById(rootView, id);
+      if (tvReviewPlace == null) {
+        break missingId;
+      }
+
       id = R.id.tv_reviewer_initial;
       TextView tvReviewerInitial = ViewBindings.findChildViewById(rootView, id);
       if (tvReviewerInitial == null) {
@@ -103,8 +137,9 @@ public final class ItemReviewBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemReviewBinding((LinearLayout) rootView, ratingBarReview, tvReviewComment,
-          tvReviewDate, tvReviewerInitial, tvReviewerName);
+      return new ItemReviewBinding((LinearLayout) rootView, btnDeleteReview, ivReviewerAvatar,
+          ratingBarReview, tvReviewComment, tvReviewDate, tvReviewPlace, tvReviewerInitial,
+          tvReviewerName);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

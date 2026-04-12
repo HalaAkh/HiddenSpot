@@ -4,8 +4,7 @@ package com.hiddenspot.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +24,7 @@ public final class FragmentProfileBinding implements ViewBinding {
   private final NestedScrollView rootView;
 
   @NonNull
-  public final FrameLayout avatarContainer;
+  public final ImageButton btnChangePhoto;
 
   @NonNull
   public final MaterialButton btnLogout;
@@ -34,16 +33,16 @@ public final class FragmentProfileBinding implements ViewBinding {
   public final CircleImageView ivAvatar;
 
   @NonNull
-  public final LinearLayout rowEditProfile;
+  public final ItemProfileMenuRowBinding rowEditProfile;
 
   @NonNull
-  public final LinearLayout rowHelp;
+  public final ItemProfileMenuRowBinding rowHelp;
 
   @NonNull
-  public final LinearLayout rowNotifications;
+  public final ItemProfileMenuRowBinding rowNotifications;
 
   @NonNull
-  public final LinearLayout rowRatings;
+  public final ItemProfileMenuRowBinding rowRatings;
 
   @NonNull
   public final RecyclerView rvMyPosts;
@@ -52,31 +51,16 @@ public final class FragmentProfileBinding implements ViewBinding {
   public final TextView tvAvatarLetter;
 
   @NonNull
-  public final TextView tvEditIcon;
+  public final TextView tvBio;
 
   @NonNull
-  public final TextView tvEditLabel;
+  public final TextView tvFavoritesCount;
 
   @NonNull
-  public final TextView tvHelpIcon;
-
-  @NonNull
-  public final TextView tvHelpLabel;
-
-  @NonNull
-  public final TextView tvNotifIcon;
-
-  @NonNull
-  public final TextView tvNotifLabel;
+  public final TextView tvNoPosts;
 
   @NonNull
   public final TextView tvPostsCount;
-
-  @NonNull
-  public final TextView tvRatingsIcon;
-
-  @NonNull
-  public final TextView tvRatingsLabel;
 
   @NonNull
   public final TextView tvStatLikes;
@@ -91,18 +75,17 @@ public final class FragmentProfileBinding implements ViewBinding {
   public final TextView tvUsername;
 
   private FragmentProfileBinding(@NonNull NestedScrollView rootView,
-      @NonNull FrameLayout avatarContainer, @NonNull MaterialButton btnLogout,
-      @NonNull CircleImageView ivAvatar, @NonNull LinearLayout rowEditProfile,
-      @NonNull LinearLayout rowHelp, @NonNull LinearLayout rowNotifications,
-      @NonNull LinearLayout rowRatings, @NonNull RecyclerView rvMyPosts,
-      @NonNull TextView tvAvatarLetter, @NonNull TextView tvEditIcon, @NonNull TextView tvEditLabel,
-      @NonNull TextView tvHelpIcon, @NonNull TextView tvHelpLabel, @NonNull TextView tvNotifIcon,
-      @NonNull TextView tvNotifLabel, @NonNull TextView tvPostsCount,
-      @NonNull TextView tvRatingsIcon, @NonNull TextView tvRatingsLabel,
-      @NonNull TextView tvStatLikes, @NonNull TextView tvStatPlaces, @NonNull TextView tvStatRating,
+      @NonNull ImageButton btnChangePhoto, @NonNull MaterialButton btnLogout,
+      @NonNull CircleImageView ivAvatar, @NonNull ItemProfileMenuRowBinding rowEditProfile,
+      @NonNull ItemProfileMenuRowBinding rowHelp,
+      @NonNull ItemProfileMenuRowBinding rowNotifications,
+      @NonNull ItemProfileMenuRowBinding rowRatings, @NonNull RecyclerView rvMyPosts,
+      @NonNull TextView tvAvatarLetter, @NonNull TextView tvBio, @NonNull TextView tvFavoritesCount,
+      @NonNull TextView tvNoPosts, @NonNull TextView tvPostsCount, @NonNull TextView tvStatLikes,
+      @NonNull TextView tvStatPlaces, @NonNull TextView tvStatRating,
       @NonNull TextView tvUsername) {
     this.rootView = rootView;
-    this.avatarContainer = avatarContainer;
+    this.btnChangePhoto = btnChangePhoto;
     this.btnLogout = btnLogout;
     this.ivAvatar = ivAvatar;
     this.rowEditProfile = rowEditProfile;
@@ -111,15 +94,10 @@ public final class FragmentProfileBinding implements ViewBinding {
     this.rowRatings = rowRatings;
     this.rvMyPosts = rvMyPosts;
     this.tvAvatarLetter = tvAvatarLetter;
-    this.tvEditIcon = tvEditIcon;
-    this.tvEditLabel = tvEditLabel;
-    this.tvHelpIcon = tvHelpIcon;
-    this.tvHelpLabel = tvHelpLabel;
-    this.tvNotifIcon = tvNotifIcon;
-    this.tvNotifLabel = tvNotifLabel;
+    this.tvBio = tvBio;
+    this.tvFavoritesCount = tvFavoritesCount;
+    this.tvNoPosts = tvNoPosts;
     this.tvPostsCount = tvPostsCount;
-    this.tvRatingsIcon = tvRatingsIcon;
-    this.tvRatingsLabel = tvRatingsLabel;
     this.tvStatLikes = tvStatLikes;
     this.tvStatPlaces = tvStatPlaces;
     this.tvStatRating = tvStatRating;
@@ -153,9 +131,9 @@ public final class FragmentProfileBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.avatar_container;
-      FrameLayout avatarContainer = ViewBindings.findChildViewById(rootView, id);
-      if (avatarContainer == null) {
+      id = R.id.btn_change_photo;
+      ImageButton btnChangePhoto = ViewBindings.findChildViewById(rootView, id);
+      if (btnChangePhoto == null) {
         break missingId;
       }
 
@@ -172,28 +150,32 @@ public final class FragmentProfileBinding implements ViewBinding {
       }
 
       id = R.id.row_edit_profile;
-      LinearLayout rowEditProfile = ViewBindings.findChildViewById(rootView, id);
+      View rowEditProfile = ViewBindings.findChildViewById(rootView, id);
       if (rowEditProfile == null) {
         break missingId;
       }
+      ItemProfileMenuRowBinding binding_rowEditProfile = ItemProfileMenuRowBinding.bind(rowEditProfile);
 
       id = R.id.row_help;
-      LinearLayout rowHelp = ViewBindings.findChildViewById(rootView, id);
+      View rowHelp = ViewBindings.findChildViewById(rootView, id);
       if (rowHelp == null) {
         break missingId;
       }
+      ItemProfileMenuRowBinding binding_rowHelp = ItemProfileMenuRowBinding.bind(rowHelp);
 
       id = R.id.row_notifications;
-      LinearLayout rowNotifications = ViewBindings.findChildViewById(rootView, id);
+      View rowNotifications = ViewBindings.findChildViewById(rootView, id);
       if (rowNotifications == null) {
         break missingId;
       }
+      ItemProfileMenuRowBinding binding_rowNotifications = ItemProfileMenuRowBinding.bind(rowNotifications);
 
       id = R.id.row_ratings;
-      LinearLayout rowRatings = ViewBindings.findChildViewById(rootView, id);
+      View rowRatings = ViewBindings.findChildViewById(rootView, id);
       if (rowRatings == null) {
         break missingId;
       }
+      ItemProfileMenuRowBinding binding_rowRatings = ItemProfileMenuRowBinding.bind(rowRatings);
 
       id = R.id.rv_my_posts;
       RecyclerView rvMyPosts = ViewBindings.findChildViewById(rootView, id);
@@ -207,57 +189,27 @@ public final class FragmentProfileBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tv_edit_icon;
-      TextView tvEditIcon = ViewBindings.findChildViewById(rootView, id);
-      if (tvEditIcon == null) {
+      id = R.id.tv_bio;
+      TextView tvBio = ViewBindings.findChildViewById(rootView, id);
+      if (tvBio == null) {
         break missingId;
       }
 
-      id = R.id.tv_edit_label;
-      TextView tvEditLabel = ViewBindings.findChildViewById(rootView, id);
-      if (tvEditLabel == null) {
+      id = R.id.tv_favorites_count;
+      TextView tvFavoritesCount = ViewBindings.findChildViewById(rootView, id);
+      if (tvFavoritesCount == null) {
         break missingId;
       }
 
-      id = R.id.tv_help_icon;
-      TextView tvHelpIcon = ViewBindings.findChildViewById(rootView, id);
-      if (tvHelpIcon == null) {
-        break missingId;
-      }
-
-      id = R.id.tv_help_label;
-      TextView tvHelpLabel = ViewBindings.findChildViewById(rootView, id);
-      if (tvHelpLabel == null) {
-        break missingId;
-      }
-
-      id = R.id.tv_notif_icon;
-      TextView tvNotifIcon = ViewBindings.findChildViewById(rootView, id);
-      if (tvNotifIcon == null) {
-        break missingId;
-      }
-
-      id = R.id.tv_notif_label;
-      TextView tvNotifLabel = ViewBindings.findChildViewById(rootView, id);
-      if (tvNotifLabel == null) {
+      id = R.id.tv_no_posts;
+      TextView tvNoPosts = ViewBindings.findChildViewById(rootView, id);
+      if (tvNoPosts == null) {
         break missingId;
       }
 
       id = R.id.tv_posts_count;
       TextView tvPostsCount = ViewBindings.findChildViewById(rootView, id);
       if (tvPostsCount == null) {
-        break missingId;
-      }
-
-      id = R.id.tv_ratings_icon;
-      TextView tvRatingsIcon = ViewBindings.findChildViewById(rootView, id);
-      if (tvRatingsIcon == null) {
-        break missingId;
-      }
-
-      id = R.id.tv_ratings_label;
-      TextView tvRatingsLabel = ViewBindings.findChildViewById(rootView, id);
-      if (tvRatingsLabel == null) {
         break missingId;
       }
 
@@ -285,11 +237,10 @@ public final class FragmentProfileBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentProfileBinding((NestedScrollView) rootView, avatarContainer, btnLogout,
-          ivAvatar, rowEditProfile, rowHelp, rowNotifications, rowRatings, rvMyPosts,
-          tvAvatarLetter, tvEditIcon, tvEditLabel, tvHelpIcon, tvHelpLabel, tvNotifIcon,
-          tvNotifLabel, tvPostsCount, tvRatingsIcon, tvRatingsLabel, tvStatLikes, tvStatPlaces,
-          tvStatRating, tvUsername);
+      return new FragmentProfileBinding((NestedScrollView) rootView, btnChangePhoto, btnLogout,
+          ivAvatar, binding_rowEditProfile, binding_rowHelp, binding_rowNotifications,
+          binding_rowRatings, rvMyPosts, tvAvatarLetter, tvBio, tvFavoritesCount, tvNoPosts,
+          tvPostsCount, tvStatLikes, tvStatPlaces, tvStatRating, tvUsername);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

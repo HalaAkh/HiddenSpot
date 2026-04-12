@@ -322,9 +322,7 @@
                 android:fontFamily="@font/poppins_semibold"
                 android:text="@string/submit_btn"
                 android:textSize="14sp"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_map_pin"
-                app:iconTint="@color/primary_foreground" />
+                app:cornerRadius="12dp"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

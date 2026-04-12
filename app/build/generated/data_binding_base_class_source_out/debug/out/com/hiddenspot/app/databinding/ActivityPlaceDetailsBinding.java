@@ -19,6 +19,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.hiddenspot.app.R;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
+import de.hdodenhof.circleimageview.CircleImageView;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -37,10 +38,10 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
   public final MaterialButton btnDownvote;
 
   @NonNull
-  public final ImageButton btnFavorite;
+  public final ImageButton btnEdit;
 
   @NonNull
-  public final MaterialButton btnMapView;
+  public final ImageButton btnFavorite;
 
   @NonNull
   public final MaterialButton btnMaps;
@@ -62,6 +63,9 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
 
   @NonNull
   public final ImageView ivHero;
+
+  @NonNull
+  public final CircleImageView ivPosterAvatar;
 
   @NonNull
   public final LinearLayout layoutPhone;
@@ -107,23 +111,24 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
 
   private ActivityPlaceDetailsBinding(@NonNull NestedScrollView rootView,
       @NonNull ImageButton btnBack, @NonNull MaterialButton btnCall,
-      @NonNull MaterialButton btnDownvote, @NonNull ImageButton btnFavorite,
-      @NonNull MaterialButton btnMapView, @NonNull MaterialButton btnMaps,
+      @NonNull MaterialButton btnDownvote, @NonNull ImageButton btnEdit,
+      @NonNull ImageButton btnFavorite, @NonNull MaterialButton btnMaps,
       @NonNull ImageButton btnShare, @NonNull MaterialButton btnSubmitReview,
       @NonNull MaterialButton btnUpvote, @NonNull DotsIndicator dotsIndicator,
       @NonNull TextInputEditText etReviewComment, @NonNull ImageView ivHero,
-      @NonNull LinearLayout layoutPhone, @NonNull RatingBar ratingBarInput,
-      @NonNull RecyclerView rvReviews, @NonNull TextView tvAddress,
-      @NonNull TextView tvCategoryBadge, @NonNull TextView tvDescription,
-      @NonNull TextView tvNoReviews, @NonNull TextView tvPhone, @NonNull TextView tvPlaceName,
-      @NonNull TextView tvPostedDate, @NonNull TextView tvPosterInitial,
-      @NonNull TextView tvPosterName, @NonNull TextView tvRating, @NonNull TextView tvReviewCount) {
+      @NonNull CircleImageView ivPosterAvatar, @NonNull LinearLayout layoutPhone,
+      @NonNull RatingBar ratingBarInput, @NonNull RecyclerView rvReviews,
+      @NonNull TextView tvAddress, @NonNull TextView tvCategoryBadge,
+      @NonNull TextView tvDescription, @NonNull TextView tvNoReviews, @NonNull TextView tvPhone,
+      @NonNull TextView tvPlaceName, @NonNull TextView tvPostedDate,
+      @NonNull TextView tvPosterInitial, @NonNull TextView tvPosterName, @NonNull TextView tvRating,
+      @NonNull TextView tvReviewCount) {
     this.rootView = rootView;
     this.btnBack = btnBack;
     this.btnCall = btnCall;
     this.btnDownvote = btnDownvote;
+    this.btnEdit = btnEdit;
     this.btnFavorite = btnFavorite;
-    this.btnMapView = btnMapView;
     this.btnMaps = btnMaps;
     this.btnShare = btnShare;
     this.btnSubmitReview = btnSubmitReview;
@@ -131,6 +136,7 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
     this.dotsIndicator = dotsIndicator;
     this.etReviewComment = etReviewComment;
     this.ivHero = ivHero;
+    this.ivPosterAvatar = ivPosterAvatar;
     this.layoutPhone = layoutPhone;
     this.ratingBarInput = ratingBarInput;
     this.rvReviews = rvReviews;
@@ -192,15 +198,15 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.btn_favorite;
-      ImageButton btnFavorite = ViewBindings.findChildViewById(rootView, id);
-      if (btnFavorite == null) {
+      id = R.id.btn_edit;
+      ImageButton btnEdit = ViewBindings.findChildViewById(rootView, id);
+      if (btnEdit == null) {
         break missingId;
       }
 
-      id = R.id.btn_map_view;
-      MaterialButton btnMapView = ViewBindings.findChildViewById(rootView, id);
-      if (btnMapView == null) {
+      id = R.id.btn_favorite;
+      ImageButton btnFavorite = ViewBindings.findChildViewById(rootView, id);
+      if (btnFavorite == null) {
         break missingId;
       }
 
@@ -243,6 +249,12 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
       id = R.id.iv_hero;
       ImageView ivHero = ViewBindings.findChildViewById(rootView, id);
       if (ivHero == null) {
+        break missingId;
+      }
+
+      id = R.id.iv_poster_avatar;
+      CircleImageView ivPosterAvatar = ViewBindings.findChildViewById(rootView, id);
+      if (ivPosterAvatar == null) {
         break missingId;
       }
 
@@ -331,10 +343,10 @@ public final class ActivityPlaceDetailsBinding implements ViewBinding {
       }
 
       return new ActivityPlaceDetailsBinding((NestedScrollView) rootView, btnBack, btnCall,
-          btnDownvote, btnFavorite, btnMapView, btnMaps, btnShare, btnSubmitReview, btnUpvote,
-          dotsIndicator, etReviewComment, ivHero, layoutPhone, ratingBarInput, rvReviews, tvAddress,
-          tvCategoryBadge, tvDescription, tvNoReviews, tvPhone, tvPlaceName, tvPostedDate,
-          tvPosterInitial, tvPosterName, tvRating, tvReviewCount);
+          btnDownvote, btnEdit, btnFavorite, btnMaps, btnShare, btnSubmitReview, btnUpvote,
+          dotsIndicator, etReviewComment, ivHero, ivPosterAvatar, layoutPhone, ratingBarInput,
+          rvReviews, tvAddress, tvCategoryBadge, tvDescription, tvNoReviews, tvPhone, tvPlaceName,
+          tvPostedDate, tvPosterInitial, tvPosterName, tvRating, tvReviewCount);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

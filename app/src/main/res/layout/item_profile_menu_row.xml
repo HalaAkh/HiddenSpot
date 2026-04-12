@@ -10,10 +10,10 @@
 
     <TextView
         android:id="@+id/tv_row_icon"
-        android:layout_width="28dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="✏️"/>
+        android:text="✏️"
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/tv_row_label"

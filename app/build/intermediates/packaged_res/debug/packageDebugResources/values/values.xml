@@ -229,4 +229,7 @@
         <item name="hintTextColor">@color/muted_foreground</item>
         <item name="android:textColorHint">@color/muted_foreground</item>
     </style>
+    <declare-styleable name="LimitedHeightSpinner">
+        <attr format="dimension" name="maxPopupHeight"/>
+    </declare-styleable>
 </resources>

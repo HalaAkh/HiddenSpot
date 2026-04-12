@@ -238,7 +238,7 @@ public class ProfileFragment extends Fragment {
                         tvStatPlaces.setText(String.valueOf(posts));
                         tvStatLikes.setText(String.valueOf(totalLikes));
                         tvStatRating.setText(totalRated > 0
-                                ? String.format(Locale.getDefault(), "%.1f", avg) : "—");
+                                ? String.format(Locale.getDefault(), "%.1f", avg) : "0.0");
                         tvPostsCount.setText(getString(R.string.posts_count_format, posts));
                     });
                 }, e -> Toast.makeText(requireContext(), "Error loading posts", Toast.LENGTH_SHORT).show());
@@ -255,7 +255,7 @@ public class ProfileFragment extends Fragment {
         tvFavoritesCount.setText("");
         tvStatPlaces.setText("0");
         tvStatLikes.setText("0");
-        tvStatRating.setText("—");
+        tvStatRating.setText("0.0");
         tvAvatarLetter.setText("");
         tvAvatarLetter.setVisibility(View.VISIBLE);
         ivAvatar.setImageDrawable(null);

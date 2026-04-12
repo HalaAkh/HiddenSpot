@@ -62,8 +62,8 @@
                 android:contentDescription="Delete post"
                 android:padding="7dp"
                 android:src="@android:drawable/ic_menu_delete"
-                android:tint="@color/downvote_red"
-                android:visibility="gone"/>
+                android:tint="#000000"
+                android:visibility="gone" />
 
         </FrameLayout>
 

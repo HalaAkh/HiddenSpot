@@ -4,12 +4,12 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\fragment_home.xml"
     },
     {
-        "merged": "com.hiddenspot.app-mergeDebugResources-67:/layout/fragment_favorites.xml",
-        "source": "com.hiddenspot.app-main-70:/layout/fragment_favorites.xml"
-    },
-    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\dialog_edit_profile.xml",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\dialog_edit_profile.xml"
+    },
+    {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\dialog_notifications.xml",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\dialog_notifications.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\activity_map.xml",
@@ -36,6 +36,10 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\activity_auth.xml"
     },
     {
+        "merged": "com.hiddenspot.app-mergeDebugResources-67:/layout/item_review.xml",
+        "source": "com.hiddenspot.app-main-70:/layout/item_review.xml"
+    },
+    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\activity_place_details.xml",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\activity_place_details.xml"
     },
@@ -60,11 +64,23 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\activity_edit_profile.xml"
     },
     {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\dialog_help_support.xml",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\dialog_help_support.xml"
+    },
+    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\fragment_favorites.xml",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\fragment_favorites.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\item_place_card.xml",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\item_place_card.xml"
+    },
+    {
+        "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\item_notification.xml",
+        "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\item_notification.xml"
+    },
+    {
+        "merged": "com.hiddenspot.app-mergeDebugResources-67:/layout/fragment_profile.xml",
+        "source": "com.hiddenspot.app-main-70:/layout/fragment_profile.xml"
     }
 ]
