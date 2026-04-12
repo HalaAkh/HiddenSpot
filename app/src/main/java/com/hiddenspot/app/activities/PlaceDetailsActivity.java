@@ -32,6 +32,7 @@ import com.hiddenspot.app.utils.FirebaseHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class PlaceDetailsActivity extends AppCompatActivity {
 
@@ -77,6 +78,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     private MaterialButton btnMaps;
     private MaterialButton btnCall;
     private ImageButton btnBack;
+    private ImageButton btnEdit;
     private ImageButton btnShare;
     private ImageButton btnFavorite;
     private RecyclerView rvReviews;
@@ -140,6 +142,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         btnMaps = findViewById(R.id.btn_maps);
         btnCall = findViewById(R.id.btn_call);
         btnBack = findViewById(R.id.btn_back);
+        btnEdit = findViewById(R.id.btn_edit);
         btnShare = findViewById(R.id.btn_share);
         btnFavorite = findViewById(R.id.btn_favorite);
         rvReviews = findViewById(R.id.rv_reviews);
@@ -223,6 +226,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             tvPostedDate.setText("Posted on " + date);
         }
 
+        updateEditButtonVisibility();
         updateVoteButtons();
         updateFavoriteIcon();
         updateReviewComposerState();
@@ -230,6 +234,10 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
+
+        if (btnEdit != null) {
+            btnEdit.setOnClickListener(v -> openEditPost());
+        }
 
         btnShare.setOnClickListener(v -> {
             Intent i = new Intent(Intent.ACTION_SEND);
@@ -365,6 +373,132 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     private String uid() {
         return FirebaseHelper.getInstance().getCurrentUser() != null
                 ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
+    }
+
+    private void updateEditButtonVisibility() {
+        if (btnEdit == null) return;
+        String uid = uid();
+        boolean isOwnPost = uid != null && uid.equals(posterUserId);
+        btnEdit.setVisibility(isOwnPost ? View.VISIBLE : View.GONE);
+    }
+
+    private void openEditPost() {
+        String uid = uid();
+        if (uid == null || placeId == null || !uid.equals(posterUserId)) {
+            return;
+        }
+        FirebaseHelper.getInstance().fetchGemById(placeId, snap -> {
+            if (!snap.exists()) {
+                runOnUiThread(() -> Toast.makeText(this, "Post not found", Toast.LENGTH_SHORT).show());
+                return;
+            }
+            Place place = snap.toObject(Place.class);
+            if (place == null) {
+                runOnUiThread(() -> Toast.makeText(this, "Failed to open post", Toast.LENGTH_SHORT).show());
+                return;
+            }
+
+            if (place.getCreatedAt() != null) {
+                long ageMillis = System.currentTimeMillis() - place.getCreatedAt().toDate().getTime();
+                if (ageMillis > TimeUnit.MINUTES.toMillis(30)) {
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Posts can't be edited after 30 minutes",
+                            Toast.LENGTH_SHORT).show());
+                    return;
+                }
+            }
+
+            place.setId(snap.getId());
+            runOnUiThread(() -> startActivity(AddPlaceActivity.createEditIntent(this, place)));
+        }, e -> runOnUiThread(() -> Toast.makeText(this,
+                e.getMessage() != null ? e.getMessage() : "Failed to open editor",
+                Toast.LENGTH_SHORT).show()));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshPlaceDetails();
+    }
+
+    private void refreshPlaceDetails() {
+        if (placeId == null || placeId.trim().isEmpty()) return;
+
+        FirebaseHelper.getInstance().fetchGemById(placeId, snap -> {
+            if (!snap.exists()) {
+                return;
+            }
+
+            Place place = snap.toObject(Place.class);
+            if (place == null) {
+                return;
+            }
+            place.setId(snap.getId());
+
+            runOnUiThread(() -> {
+                placeName = place.getName();
+                posterUserId = place.getUserId();
+                upvotes = place.getUpvotes();
+                downvotes = place.getDownvotes();
+
+                tvCategoryBadge.setText(getCategoryDisplay(place.getCategory()));
+                tvCategoryBadge.setBackgroundColor(getCategoryColor(place.getCategory()));
+                tvPlaceName.setText(place.getName());
+
+                String address = place.getAddress() != null ? place.getAddress() : "";
+                String city = place.getCity() != null ? place.getCity() : "";
+                tvAddress.setText(address + (city.isEmpty() ? "" : ", " + city));
+                tvRating.setText(String.format(Locale.getDefault(), "%.1f", place.getRating()));
+                tvDescription.setText(place.getDescription());
+
+                String phone = place.getPhone();
+                if (phone != null && !phone.trim().isEmpty()) {
+                    layoutPhone.setVisibility(View.VISIBLE);
+                    btnCall.setVisibility(View.VISIBLE);
+                    tvPhone.setText(phone);
+                    tvPhone.setOnClickListener(v -> startActivity(
+                            new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone))));
+                    btnCall.setOnClickListener(v -> startActivity(
+                            new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone))));
+                } else {
+                    layoutPhone.setVisibility(View.GONE);
+                    btnCall.setVisibility(View.GONE);
+                }
+
+                String posterName = place.getUserName();
+                if (posterName != null && !posterName.isEmpty()) {
+                    tvPosterName.setText(posterName);
+                    tvPosterInitial.setText(posterName.substring(0, 1).toUpperCase(Locale.getDefault()));
+                }
+                updatePosterAvatar(place.getUserAvatar());
+                tvPostedDate.setText("Posted on " + place.getFormattedDate());
+
+                String image = place.getFirstImage();
+                if (image != null && !image.isEmpty()) {
+                    if (!image.startsWith("http")) {
+                        try {
+                            byte[] imageBytes = Base64.decode(image, Base64.DEFAULT);
+                            Glide.with(this).load(imageBytes)
+                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                    .centerCrop()
+                                    .into(ivHero);
+                        } catch (Exception e) {
+                            ivHero.setImageResource(R.color.muted);
+                        }
+                    } else {
+                        Glide.with(this).load(image)
+                                .transition(DrawableTransitionOptions.withCrossFade())
+                                .centerCrop()
+                                .into(ivHero);
+                    }
+                } else {
+                    ivHero.setImageResource(R.color.muted);
+                }
+
+                updateEditButtonVisibility();
+                updateVoteButtons();
+            });
+        }, e -> { });
     }
 
     private void updatePosterAvatar(String posterAvatar) {

@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -44,16 +45,35 @@ public class AddPlaceActivity extends AppCompatActivity {
     private static final int REQUEST_CAMERA = 101;
     private static final int REQUEST_PERM = 200;
 
-    private TextInputEditText etPlaceName, etCity, etAddress, etPhone, etDescription;
+    public static final String EXTRA_IS_EDIT_MODE = "is_edit_mode";
+    public static final String EXTRA_PLACE_ID = "place_id";
+    public static final String EXTRA_PLACE_NAME = "place_name";
+    public static final String EXTRA_PLACE_CITY = "place_city";
+    public static final String EXTRA_PLACE_ADDRESS = "place_address";
+    public static final String EXTRA_PLACE_PHONE = "place_phone";
+    public static final String EXTRA_PLACE_DESC = "place_desc";
+    public static final String EXTRA_PLACE_CATEGORY = "place_category";
+    public static final String EXTRA_PLACE_IMAGE = "place_image";
+
+    private TextInputEditText etPlaceName;
+    private TextInputEditText etCity;
+    private TextInputEditText etAddress;
+    private TextInputEditText etPhone;
+    private TextInputEditText etDescription;
     private Spinner spinnerCategory;
     private MaterialButton btnSubmit;
     private ImageButton btnBack;
-    private LinearLayout btnUploadGallery, btnOpenCamera;
+    private LinearLayout btnUploadGallery;
+    private LinearLayout btnOpenCamera;
     private ImageView ivPreview;
+    private TextView tvHeaderTitle;
 
     private Uri selectedImageUri = null;
     private Bitmap capturedBitmap = null;
     private String selectedCategory = "Restaurant";
+    private boolean isEditMode = false;
+    private String editingPlaceId = "";
+    private String existingImageData = "";
 
     private static final String[] CATEGORIES = {
             "Restaurant", "Garden", "Café", "Viewpoint",
@@ -66,7 +86,22 @@ public class AddPlaceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_place);
         bindViews();
         setupSpinner();
+        loadIntentData();
         setupListeners();
+    }
+
+    public static Intent createEditIntent(android.content.Context context, Place place) {
+        Intent intent = new Intent(context, AddPlaceActivity.class);
+        intent.putExtra(EXTRA_IS_EDIT_MODE, true);
+        intent.putExtra(EXTRA_PLACE_ID, place.getId());
+        intent.putExtra(EXTRA_PLACE_NAME, place.getName());
+        intent.putExtra(EXTRA_PLACE_CITY, place.getCity());
+        intent.putExtra(EXTRA_PLACE_ADDRESS, place.getAddress());
+        intent.putExtra(EXTRA_PLACE_PHONE, place.getPhone());
+        intent.putExtra(EXTRA_PLACE_DESC, place.getDescription());
+        intent.putExtra(EXTRA_PLACE_CATEGORY, place.getCategory());
+        intent.putExtra(EXTRA_PLACE_IMAGE, place.getFirstImage());
+        return intent;
     }
 
     private void bindViews() {
@@ -81,6 +116,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         btnUploadGallery = findViewById(R.id.btn_upload_gallery);
         btnOpenCamera = findViewById(R.id.btn_open_camera);
         ivPreview = findViewById(R.id.iv_preview);
+        tvHeaderTitle = findViewById(R.id.tv_header_title);
     }
 
     private void setupSpinner() {
@@ -90,14 +126,58 @@ public class AddPlaceActivity extends AppCompatActivity {
         spinnerCategory.setAdapter(adapter);
         spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                selectedCategory = CATEGORIES[pos];
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedCategory = CATEGORIES[position];
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> p) {
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    private void loadIntentData() {
+        Intent intent = getIntent();
+        isEditMode = intent.getBooleanExtra(EXTRA_IS_EDIT_MODE, false);
+        if (!isEditMode) {
+            return;
+        }
+
+        editingPlaceId = intent.getStringExtra(EXTRA_PLACE_ID);
+        existingImageData = intent.getStringExtra(EXTRA_PLACE_IMAGE);
+        etPlaceName.setText(intent.getStringExtra(EXTRA_PLACE_NAME));
+        etCity.setText(intent.getStringExtra(EXTRA_PLACE_CITY));
+        etAddress.setText(intent.getStringExtra(EXTRA_PLACE_ADDRESS));
+        etPhone.setText(intent.getStringExtra(EXTRA_PLACE_PHONE));
+        etDescription.setText(intent.getStringExtra(EXTRA_PLACE_DESC));
+
+        String category = intent.getStringExtra(EXTRA_PLACE_CATEGORY);
+        if (category != null && !category.trim().isEmpty()) {
+            selectedCategory = category;
+            int index = findCategoryIndex(category);
+            if (index >= 0) {
+                spinnerCategory.setSelection(index);
+            }
+        }
+
+        if (existingImageData != null && !existingImageData.trim().isEmpty()) {
+            ivPreview.setVisibility(View.VISIBLE);
+            if (existingImageData.startsWith("http")) {
+                Glide.with(this).load(existingImageData).centerCrop().into(ivPreview);
+            } else {
+                try {
+                    byte[] imageBytes = Base64.decode(existingImageData, Base64.DEFAULT);
+                    Glide.with(this).load(imageBytes).centerCrop().into(ivPreview);
+                } catch (Exception e) {
+                    ivPreview.setVisibility(View.GONE);
+                }
+            }
+        }
+
+        if (tvHeaderTitle != null) {
+            tvHeaderTitle.setText("Edit Post");
+        }
+        btnSubmit.setText("Update Post");
     }
 
     private void setupListeners() {
@@ -106,8 +186,6 @@ public class AddPlaceActivity extends AppCompatActivity {
         btnOpenCamera.setOnClickListener(v -> checkPermissionAndOpenCamera());
         btnSubmit.setOnClickListener(v -> submitPlace());
     }
-
-    // ── Gallery ───────────────────────────────────────────────────────────
 
     private void checkPermissionAndPickGallery() {
         String perm = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
@@ -125,10 +203,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         startActivityForResult(i, REQUEST_GALLERY);
     }
 
-    // ── Camera ────────────────────────────────────────────────────────────
-
     private void checkPermissionAndOpenCamera() {
-        // Check if camera is actually available on this device/emulator
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
             Toast.makeText(this,
                     "No camera available. Please use the Upload option instead.",
@@ -155,8 +230,6 @@ public class AddPlaceActivity extends AppCompatActivity {
         }
     }
 
-    // ── Activity result ───────────────────────────────────────────────────
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -180,8 +253,6 @@ public class AddPlaceActivity extends AppCompatActivity {
         }
     }
 
-    // ── Submit ────────────────────────────────────────────────────────────
-
     private void submitPlace() {
         String name = getText(etPlaceName);
         String city = getText(etCity);
@@ -201,9 +272,8 @@ public class AddPlaceActivity extends AppCompatActivity {
         }
 
         btnSubmit.setEnabled(false);
-        btnSubmit.setText("Processing...");
+        btnSubmit.setText(isEditMode ? "Updating..." : "Processing...");
 
-        // Run image encoding on background thread to avoid ANR
         new Thread(() -> {
             String base64Image = "";
             if (selectedImageUri != null) {
@@ -211,7 +281,7 @@ public class AddPlaceActivity extends AppCompatActivity {
             } else if (capturedBitmap != null) {
                 base64Image = encodeBitmapToBase64(capturedBitmap);
             }
-            final String finalImage = base64Image;
+            String finalImage = base64Image;
             runOnUiThread(() -> savePlace(name, city, address, phone, desc, user, finalImage));
         }).start();
     }
@@ -247,7 +317,7 @@ public class AddPlaceActivity extends AppCompatActivity {
 
     private void savePlace(String name, String city, String address, String phone,
                            String desc, FirebaseUser user, String imageData) {
-        btnSubmit.setText("Saving...");
+        btnSubmit.setText(isEditMode ? "Updating..." : "Saving...");
         List<String> images = new ArrayList<>();
         if (!imageData.isEmpty()) images.add(imageData);
 
@@ -266,13 +336,34 @@ public class AddPlaceActivity extends AppCompatActivity {
     private void savePlaceDocument(String name, String city, String address, String phone,
                                    String desc, List<String> images, String userId,
                                    String displayName, String avatarUrl) {
+        List<String> finalImages = new ArrayList<>();
+        if (!images.isEmpty()) {
+            finalImages.addAll(images);
+        } else if (isEditMode && existingImageData != null && !existingImageData.trim().isEmpty()) {
+            finalImages.add(existingImageData);
+        }
+
         Place place = new Place(name, city, address, phone, desc,
-                selectedCategory, images, userId, displayName);
+                selectedCategory, finalImages, userId, displayName);
         place.setUserAvatar(avatarUrl != null ? avatarUrl : "");
+
+        if (isEditMode && editingPlaceId != null && !editingPlaceId.trim().isEmpty()) {
+            FirebaseHelper.getInstance().updateGem(editingPlaceId, place,
+                    v -> runOnUiThread(() -> {
+                        Toast.makeText(this, "Post updated successfully!", Toast.LENGTH_LONG).show();
+                        finish();
+                    }),
+                    e -> runOnUiThread(() -> {
+                        btnSubmit.setEnabled(true);
+                        btnSubmit.setText("Update Post");
+                        Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }));
+            return;
+        }
 
         FirebaseHelper.getInstance().addGem(place,
                 docRef -> runOnUiThread(() -> {
-                    Toast.makeText(this, "🎉 Gem added successfully!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Gem added successfully!", Toast.LENGTH_LONG).show();
                     finish();
                 }),
                 e -> runOnUiThread(() -> {
@@ -280,6 +371,15 @@ public class AddPlaceActivity extends AppCompatActivity {
                     btnSubmit.setText(getString(R.string.submit_btn));
                     Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }));
+    }
+
+    private int findCategoryIndex(String category) {
+        for (int i = 0; i < CATEGORIES.length; i++) {
+            if (CATEGORIES[i].equals(category)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private String getText(TextInputEditText et) {

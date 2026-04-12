@@ -22,6 +22,7 @@ import com.hiddenspot.app.models.Review;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class FirebaseHelper {
 
@@ -185,6 +186,54 @@ public class FirebaseHelper {
         db.collection(COLLECTION_GEMS)
                 .add(data)
                 .addOnSuccessListener(onSuccess)
+                .addOnFailureListener(onFailure);
+    }
+
+    public void updateGem(String gemId, Place place,
+                          OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        String currentUid = getCurrentUser() != null ? getCurrentUser().getUid() : null;
+        if (currentUid == null) {
+            onFailure.onFailure(new IllegalStateException("Not authenticated"));
+            return;
+        }
+
+        DocumentReference gemRef = db.collection(COLLECTION_GEMS).document(gemId);
+        gemRef.get()
+                .addOnSuccessListener(gemDoc -> {
+                    if (!gemDoc.exists()) {
+                        onFailure.onFailure(new IllegalStateException("Post not found"));
+                        return;
+                    }
+
+                    String ownerId = gemDoc.getString("userId");
+                    if (ownerId == null || !ownerId.equals(currentUid)) {
+                        onFailure.onFailure(new IllegalStateException("You can only edit your own posts"));
+                        return;
+                    }
+
+                    com.google.firebase.Timestamp createdAt = gemDoc.getTimestamp("createdAt");
+                    if (createdAt != null) {
+                        long ageMillis = System.currentTimeMillis() - createdAt.toDate().getTime();
+                        if (ageMillis > TimeUnit.MINUTES.toMillis(30)) {
+                            onFailure.onFailure(new IllegalStateException("Posts can only be edited within 30 minutes"));
+                            return;
+                        }
+                    }
+
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("name", place.getName());
+                    updates.put("city", place.getCity());
+                    updates.put("address", place.getAddress());
+                    updates.put("phone", place.getPhone());
+                    updates.put("description", place.getDescription());
+                    updates.put("category", place.getCategory());
+                    updates.put("images", place.getImages());
+                    updates.put("userName", place.getUserName());
+                    updates.put("userAvatar", place.getUserAvatar());
+                    gemRef.update(updates)
+                            .addOnSuccessListener(onSuccess)
+                            .addOnFailureListener(onFailure);
+                })
                 .addOnFailureListener(onFailure);
     }
 
