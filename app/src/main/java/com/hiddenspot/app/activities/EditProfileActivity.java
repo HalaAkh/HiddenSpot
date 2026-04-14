@@ -46,7 +46,9 @@ public class EditProfileActivity extends AppCompatActivity {
     private TextInputEditText etEmail;
     private TextInputEditText etBio;
     private MaterialButton btnSave;
+    private MaterialButton btnDeletePhoto;
     private Uri selectedImageUri;
+    private boolean photoDeleted = false;
     private String currentAvatarUrl = "";
 
     @Override
@@ -61,10 +63,15 @@ public class EditProfileActivity extends AppCompatActivity {
         etBio = findViewById(R.id.et_bio);
         btnSave = findViewById(R.id.btn_save);
         ImageButton btnBack = findViewById(R.id.btn_back);
+
         ImageButton btnChangePhoto = findViewById(R.id.btn_change_photo);
+        btnDeletePhoto = findViewById(R.id.btn_delete_photo);
 
         btnBack.setOnClickListener(v -> finish());
         btnChangePhoto.setOnClickListener(v -> checkPermissionAndPickGallery());
+        if (btnDeletePhoto != null) {
+            btnDeletePhoto.setOnClickListener(v -> confirmDeletePhoto());
+        }
         btnSave.setOnClickListener(v -> saveProfile());
 
         loadProfile();
@@ -99,6 +106,8 @@ public class EditProfileActivity extends AppCompatActivity {
             etDisplayName.setText(displayName);
             etBio.setText(bio != null ? bio : "");
             updateAvatar(displayName, currentAvatarUrl);
+            updateDeleteButtonVisibility();
+
         }), e -> runOnUiThread(() -> {
             String fallbackName = user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()
                     ? user.getDisplayName()
@@ -156,7 +165,9 @@ public class EditProfileActivity extends AppCompatActivity {
         btnSave.setEnabled(false);
         btnSave.setText("Saving...");
 
-        if (selectedImageUri != null) {
+        if (photoDeleted) {
+            persistProfile(user, displayName, bio, "");
+        } else if (selectedImageUri != null) {
             persistProfile(user, displayName, bio, encodeImageToBase64(selectedImageUri));
         } else {
             persistProfile(user, displayName, bio, currentAvatarUrl);
@@ -266,5 +277,32 @@ public class EditProfileActivity extends AppCompatActivity {
         } else if (requestCode == REQUEST_PERM) {
             Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
         }
+    }
+    private void confirmDeletePhoto() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Remove Profile Photo")
+                .setMessage("Are you sure you want to remove your profile photo?")
+                .setPositiveButton("Remove", (dialog, which) -> deletePhoto())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void deletePhoto() {
+        ivAvatar.setImageDrawable(null);
+        selectedImageUri = null;
+        photoDeleted = true;
+        String name = etDisplayName.getText() != null
+                ? etDisplayName.getText().toString().trim() : "U";
+        tvAvatarLetter.setText(name.isEmpty() ? "U" : name.substring(0, 1).toUpperCase());
+        tvAvatarLetter.setVisibility(View.VISIBLE);
+        updateDeleteButtonVisibility();
+        Toast.makeText(this, "Photo removed — tap Save to confirm", Toast.LENGTH_SHORT).show();
+    }
+
+    private void updateDeleteButtonVisibility() {
+        if (btnDeletePhoto == null) return;
+        boolean hasPhoto = (selectedImageUri != null)
+                || (!photoDeleted && currentAvatarUrl != null && !currentAvatarUrl.trim().isEmpty());
+        btnDeletePhoto.setVisibility(hasPhoto ? View.VISIBLE : View.GONE);
     }
 }

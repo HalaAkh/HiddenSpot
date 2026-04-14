@@ -105,6 +105,21 @@
                     android:textSize="13sp"
                     android:fontFamily="@font/poppins_semibold" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_delete_photo"
+                    style="@style/Widget.HiddenSpot.Button.Destructive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:text="Remove Photo"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_logout"
+                    app:iconTint="@color/destructive"
+                    app:iconSize="14dp"/>
+
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.HiddenSpot.TextInput"
                     android:layout_width="match_parent"
