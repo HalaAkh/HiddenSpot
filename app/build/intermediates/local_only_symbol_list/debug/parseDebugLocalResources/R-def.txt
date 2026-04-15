@@ -76,6 +76,7 @@ font poppins
 font poppins_bold
 font poppins_regular
 font poppins_semibold
+id avatar_container
 id bottom_nav
 id btn_action
 id btn_back
@@ -95,6 +96,7 @@ id btn_submit
 id btn_submit_review
 id btn_upload_gallery
 id btn_upvote
+id card_thought_bubble
 id dots_indicator
 id et_address
 id et_bio
@@ -189,6 +191,7 @@ id tv_stat_places
 id tv_stat_rating
 id tv_subtitle
 id tv_tagline
+id tv_thought_bubble
 id tv_title
 id tv_toggle_action
 id tv_toggle_label
@@ -320,3 +323,4 @@ style Widget.HiddenSpot.Card
 style Widget.HiddenSpot.Card.Elevated
 style Widget.HiddenSpot.TextInput
 styleable LimitedHeightSpinner maxPopupHeight
+xml file_paths

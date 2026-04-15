@@ -4,10 +4,12 @@ package com.hiddenspot.app.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
@@ -24,10 +26,16 @@ public final class FragmentProfileBinding implements ViewBinding {
   private final NestedScrollView rootView;
 
   @NonNull
+  public final FrameLayout avatarContainer;
+
+  @NonNull
   public final ImageButton btnChangePhoto;
 
   @NonNull
   public final MaterialButton btnLogout;
+
+  @NonNull
+  public final CardView cardThoughtBubble;
 
   @NonNull
   public final CircleImageView ivAvatar;
@@ -72,10 +80,14 @@ public final class FragmentProfileBinding implements ViewBinding {
   public final TextView tvStatRating;
 
   @NonNull
+  public final TextView tvThoughtBubble;
+
+  @NonNull
   public final TextView tvUsername;
 
   private FragmentProfileBinding(@NonNull NestedScrollView rootView,
-      @NonNull ImageButton btnChangePhoto, @NonNull MaterialButton btnLogout,
+      @NonNull FrameLayout avatarContainer, @NonNull ImageButton btnChangePhoto,
+      @NonNull MaterialButton btnLogout, @NonNull CardView cardThoughtBubble,
       @NonNull CircleImageView ivAvatar, @NonNull ItemProfileMenuRowBinding rowEditProfile,
       @NonNull ItemProfileMenuRowBinding rowHelp,
       @NonNull ItemProfileMenuRowBinding rowNotifications,
@@ -83,10 +95,12 @@ public final class FragmentProfileBinding implements ViewBinding {
       @NonNull TextView tvAvatarLetter, @NonNull TextView tvBio, @NonNull TextView tvFavoritesCount,
       @NonNull TextView tvNoPosts, @NonNull TextView tvPostsCount, @NonNull TextView tvStatLikes,
       @NonNull TextView tvStatPlaces, @NonNull TextView tvStatRating,
-      @NonNull TextView tvUsername) {
+      @NonNull TextView tvThoughtBubble, @NonNull TextView tvUsername) {
     this.rootView = rootView;
+    this.avatarContainer = avatarContainer;
     this.btnChangePhoto = btnChangePhoto;
     this.btnLogout = btnLogout;
+    this.cardThoughtBubble = cardThoughtBubble;
     this.ivAvatar = ivAvatar;
     this.rowEditProfile = rowEditProfile;
     this.rowHelp = rowHelp;
@@ -101,6 +115,7 @@ public final class FragmentProfileBinding implements ViewBinding {
     this.tvStatLikes = tvStatLikes;
     this.tvStatPlaces = tvStatPlaces;
     this.tvStatRating = tvStatRating;
+    this.tvThoughtBubble = tvThoughtBubble;
     this.tvUsername = tvUsername;
   }
 
@@ -131,6 +146,12 @@ public final class FragmentProfileBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.avatar_container;
+      FrameLayout avatarContainer = ViewBindings.findChildViewById(rootView, id);
+      if (avatarContainer == null) {
+        break missingId;
+      }
+
       id = R.id.btn_change_photo;
       ImageButton btnChangePhoto = ViewBindings.findChildViewById(rootView, id);
       if (btnChangePhoto == null) {
@@ -140,6 +161,12 @@ public final class FragmentProfileBinding implements ViewBinding {
       id = R.id.btn_logout;
       MaterialButton btnLogout = ViewBindings.findChildViewById(rootView, id);
       if (btnLogout == null) {
+        break missingId;
+      }
+
+      id = R.id.card_thought_bubble;
+      CardView cardThoughtBubble = ViewBindings.findChildViewById(rootView, id);
+      if (cardThoughtBubble == null) {
         break missingId;
       }
 
@@ -231,16 +258,23 @@ public final class FragmentProfileBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_thought_bubble;
+      TextView tvThoughtBubble = ViewBindings.findChildViewById(rootView, id);
+      if (tvThoughtBubble == null) {
+        break missingId;
+      }
+
       id = R.id.tv_username;
       TextView tvUsername = ViewBindings.findChildViewById(rootView, id);
       if (tvUsername == null) {
         break missingId;
       }
 
-      return new FragmentProfileBinding((NestedScrollView) rootView, btnChangePhoto, btnLogout,
-          ivAvatar, binding_rowEditProfile, binding_rowHelp, binding_rowNotifications,
-          binding_rowRatings, rvMyPosts, tvAvatarLetter, tvBio, tvFavoritesCount, tvNoPosts,
-          tvPostsCount, tvStatLikes, tvStatPlaces, tvStatRating, tvUsername);
+      return new FragmentProfileBinding((NestedScrollView) rootView, avatarContainer,
+          btnChangePhoto, btnLogout, cardThoughtBubble, ivAvatar, binding_rowEditProfile,
+          binding_rowHelp, binding_rowNotifications, binding_rowRatings, rvMyPosts, tvAvatarLetter,
+          tvBio, tvFavoritesCount, tvNoPosts, tvPostsCount, tvStatLikes, tvStatPlaces, tvStatRating,
+          tvThoughtBubble, tvUsername);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

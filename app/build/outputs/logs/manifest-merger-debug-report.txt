@@ -1,9 +1,20 @@
 -- Merging decision tree log ---
+provider#androidx.core.content.FileProvider
+INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:69:9-77:20
+	android:grantUriPermissions
+		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:73:13-47
+	android:authorities
+		INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml
+		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:71:13-60
+	android:exported
+		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:72:13-37
+	android:name
+		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:70:13-62
 manifest
-ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:2:1-69:12
-INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:2:1-69:12
-INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:2:1-69:12
-INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:2:1-69:12
+ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:2:1-79:12
+INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:2:1-79:12
+INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:2:1-79:12
+INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:2:1-79:12
 MERGED from [androidx.databinding:viewbinding:8.4.0] C:\Users\user\.gradle\caches\9.0-milestone-1\transforms\cf620782c3ce19cbb390d694f0fb2238\transformed\jetified-viewbinding-8.4.0\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\user\.gradle\caches\9.0-milestone-1\transforms\09dab1ed71a25838de154e1221f3ce2c\transformed\material-1.12.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\user\.gradle\caches\9.0-milestone-1\transforms\e11b62601484d5f5aa4ac8e3ebc7f6be\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
@@ -148,8 +159,8 @@ ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.
 	android:name
 		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:10:22-73
 application
-ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:12:5-68:19
-INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:12:5-68:19
+ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:12:5-78:19
+INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:12:5-78:19
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\user\.gradle\caches\9.0-milestone-1\transforms\09dab1ed71a25838de154e1221f3ce2c\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\user\.gradle\caches\9.0-milestone-1\transforms\09dab1ed71a25838de154e1221f3ce2c\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\user\.gradle\caches\9.0-milestone-1\transforms\e11b62601484d5f5aa4ac8e3ebc7f6be\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
@@ -306,6 +317,12 @@ ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.
 		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:67:13-42
 	android:name
 		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:66:13-58
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:74:13-76:53
+	android:resource
+		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:76:17-51
+	android:name
+		ADDED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml:75:17-67
 uses-sdk
 INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\user\StudioProjects\HiddenSpot\app\src\main\AndroidManifest.xml

@@ -40,8 +40,6 @@
                     android:textSize="18sp"
                     android:fontFamily="@font/poppins_bold"/>
 
-
-
             </LinearLayout>
 
             <!-- User info row -->
@@ -51,39 +49,74 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!-- Avatar -->
-                <FrameLayout
-                    android:layout_width="80dp"
-                    android:layout_height="80dp">
+                <!-- Avatar + Bubble -->
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/iv_avatar"
+                    <!-- Avatar Frame -->
+                    <FrameLayout
+                        android:id="@+id/avatar_container"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:src="@color/primary_dark"/>
+                        android:layout_marginTop="16dp">
 
-                    <TextView
-                        android:id="@+id/tv_avatar_letter"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:gravity="center"
-                        android:text=""
-                        android:textColor="@color/primary_foreground"
-                        android:textSize="32sp"
-                        android:fontFamily="@font/poppins_bold"
-                        android:background="@color/primary_dark"/>
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/iv_avatar"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@color/primary_dark"/>
 
-                    <ImageButton
-                        android:id="@+id/btn_change_photo"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:layout_gravity="bottom|end"
-                        android:src="@drawable/ic_camera"
-                        android:padding="6dp"
-                        android:background="@drawable/bg_chip_active"
-                        android:tint="@color/primary_foreground"/>
+                        <TextView
+                            android:id="@+id/tv_avatar_letter"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:gravity="center"
+                            android:text=""
+                            android:textColor="@color/primary_foreground"
+                            android:textSize="32sp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:background="@color/primary_dark"/>
 
-                </FrameLayout>
+                        <ImageButton
+                            android:id="@+id/btn_change_photo"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="bottom|end"
+                            android:src="@drawable/ic_edit"
+                            android:padding="6dp"
+                            android:background="@drawable/bg_chip_active"
+                            android:tint="@color/primary_foreground"/>
+
+                    </FrameLayout>
+
+                    <!-- Thought Bubble -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/card_thought_bubble"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="40dp"
+                        app:cardBackgroundColor="#E6374151"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tv_thought_bubble"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp"
+                            android:text="What's on your mind?"
+                            android:textColor="@color/primary_foreground"
+                            android:textSize="11sp"
+                            android:maxWidth="120dp"
+                            android:fontFamily="@font/inter"/>
+
+                    </androidx.cardview.widget.CardView>
+
+                </RelativeLayout>
 
                 <!-- Name + stats -->
                 <LinearLayout

@@ -1,13 +1,17 @@
 package com.hiddenspot.app.fragments;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -45,6 +50,14 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileFragment extends Fragment {
 
+    private static final String PREFS_NAME     = "hiddenspot_prefs";
+    private static final String KEY_THOUGHT    = "thought_bubble_text";
+    private static final String DEFAULT_THOUGHT = "What's on your mind?";
+    private static final int MAX_THOUGHT_LENGTH = 60;
+    private static final int REQUEST_GALLERY_PROFILE = 400;
+    private static final int REQUEST_CAMERA_PROFILE  = 401;
+    private static final int REQUEST_PERM_PROFILE    = 402;
+    private Uri cameraImageUri;
     private TextView tvUsername;
     private TextView tvBio;
     private TextView tvAvatarLetter;
@@ -64,6 +77,9 @@ public class ProfileFragment extends Fragment {
     private ImageView btnChangePhoto;
     private PlaceAdapter postsAdapter;
     private final List<Place> myPosts = new ArrayList<>();
+    private TextView tvThoughtBubble;
+    private CardView cardThoughtBubble;
+
 
     @Nullable
     @Override
@@ -92,6 +108,11 @@ public class ProfileFragment extends Fragment {
         rowRatings = view.findViewById(R.id.row_ratings);
         rowNotifications = view.findViewById(R.id.row_notifications);
         rowHelp = view.findViewById(R.id.row_help);
+        tvThoughtBubble   = view.findViewById(R.id.tv_thought_bubble);
+        cardThoughtBubble = view.findViewById(R.id.card_thought_bubble);
+        loadThoughtBubble();
+        cardThoughtBubble.setOnClickListener(v -> showThoughtBubbleDialog());
+        tvThoughtBubble.setOnClickListener(v -> showThoughtBubbleDialog());
 
         setMenuRow(rowEditProfile, "✏️", "Edit Profile");
         setMenuRow(rowRatings, "⭐", "My Ratings");
@@ -136,21 +157,83 @@ public class ProfileFragment extends Fragment {
             startActivity(i);
         });
 
-        View.OnClickListener openEditProfile = v ->
-                startActivity(new Intent(requireActivity(), EditProfileActivity.class));
-        rowEditProfile.setOnClickListener(openEditProfile);
-        btnChangePhoto.setOnClickListener(openEditProfile);
+        rowEditProfile.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), EditProfileActivity.class)));
+
+        btnChangePhoto.setOnClickListener(v -> showPhotoOptionsDialog());
         rowRatings.setOnClickListener(v -> showMyRatings());
         rowNotifications.setOnClickListener(v -> showNotificationsListDialog());
         rowHelp.setOnClickListener(v -> showHelpDialog());
+
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
         loadUserProfile();
+        loadThoughtBubble();
     }
 
+    private void loadThoughtBubble() {
+        SharedPreferences prefs = requireContext()
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String text = prefs.getString(KEY_THOUGHT, DEFAULT_THOUGHT);
+        tvThoughtBubble.setText(text.isEmpty() ? DEFAULT_THOUGHT : text);
+        tvThoughtBubble.setTextColor(
+                text.equals(DEFAULT_THOUGHT) || text.isEmpty()
+                        ? 0xAAFFFFFF : 0xFFFFFFFF);
+    }
+
+    private void saveThoughtBubble(String text) {
+        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit().putString(KEY_THOUGHT, text).apply();
+    }
+
+    private void showThoughtBubbleDialog() {
+        SharedPreferences prefs = requireContext()
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String current = prefs.getString(KEY_THOUGHT, "");
+        boolean isDefault = current.equals(DEFAULT_THOUGHT) || current.isEmpty();
+
+        EditText input = new EditText(requireContext());
+        input.setHint(DEFAULT_THOUGHT);
+        input.setText(isDefault ? "" : current);
+        input.setSelection(input.getText().length());
+        input.setMaxLines(3);
+        input.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(MAX_THOUGHT_LENGTH)});
+        int dp16 = Math.round(16 * getResources().getDisplayMetrics().density);
+        input.setPadding(dp16, dp16, dp16, dp16);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle("What's on your mind?")
+                .setView(input)
+                .setPositiveButton("Save", (d, w) -> {
+                    String t = input.getText().toString().trim();
+                    saveThoughtBubble(t.isEmpty() ? DEFAULT_THOUGHT : t);
+                    loadThoughtBubble();
+                })
+                .setNegativeButton("Cancel", null)
+                .setNeutralButton("Clear", (d, w) -> {
+                    saveThoughtBubble(DEFAULT_THOUGHT);
+                    loadThoughtBubble();
+                })
+                .create();
+
+        dialog.show();
+
+        // Auto-open keyboard and focus input immediately
+        input.requestFocus();
+        input.postDelayed(() -> {
+            android.view.inputmethod.InputMethodManager imm =
+                    (android.view.inputmethod.InputMethodManager)
+                            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(input, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 100);
+    }
     private void loadUserProfile() {
         FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
         if (user == null) return;
@@ -303,6 +386,183 @@ public class ProfileFragment extends Fragment {
                 .show();
     }
 
+    private void showPhotoOptionsDialog() {
+        FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        FirebaseHelper.getInstance().fetchUserProfile(user.getUid(), profileSnap -> {
+            String avatarUrl = profileSnap.getString("avatarUrl");
+            boolean hasPhoto = avatarUrl != null && !avatarUrl.trim().isEmpty();
+
+            requireActivity().runOnUiThread(() -> {
+                // Build custom dialog view
+                android.widget.LinearLayout container = new android.widget.LinearLayout(requireContext());
+                container.setOrientation(android.widget.LinearLayout.VERTICAL);
+                container.setBackgroundColor(getResources().getColor(R.color.card, null));
+                int dp16 = Math.round(16 * getResources().getDisplayMetrics().density);
+                int dp12 = Math.round(12 * getResources().getDisplayMetrics().density);
+                int dp1  = Math.round(1  * getResources().getDisplayMetrics().density);
+                container.setPadding(0, dp12, 0, dp12);
+
+                // Option builder helper
+                java.util.function.BiConsumer<String, Integer> addOption = (label, iconRes) -> {
+                    android.widget.LinearLayout row = new android.widget.LinearLayout(requireContext());
+                    row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+                    row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                    row.setPadding(dp16, dp12, dp16, dp12);
+                    row.setClickable(true);
+                    row.setFocusable(true);
+                    row.setBackground(getResources().getDrawable(
+                            android.R.drawable.list_selector_background, null));
+
+                    android.widget.ImageView icon = new android.widget.ImageView(requireContext());
+                    android.widget.LinearLayout.LayoutParams iconParams =
+                            new android.widget.LinearLayout.LayoutParams(dp16 * 2, dp16 * 2);
+                    iconParams.setMarginEnd(dp16);
+                    icon.setLayoutParams(iconParams);
+                    icon.setImageResource(iconRes);
+                    icon.setColorFilter(getResources().getColor(R.color.foreground, null));
+
+                    android.widget.TextView tv = new android.widget.TextView(requireContext());
+                    tv.setText(label);
+                    tv.setTextSize(14f);
+                    tv.setTextColor(getResources().getColor(R.color.foreground, null));
+                    try {
+                        android.graphics.Typeface tf = android.graphics.Typeface.createFromAsset(
+                                requireContext().getAssets(), "fonts/inter.ttf");
+                        tv.setTypeface(tf);
+                    } catch (Exception ignored) {}
+
+                    row.addView(icon);
+                    row.addView(tv);
+                    container.addView(row);
+
+                    // Divider
+                    android.view.View divider = new android.view.View(requireContext());
+                    android.widget.LinearLayout.LayoutParams divParams =
+                            new android.widget.LinearLayout.LayoutParams(
+                                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, dp1);
+                    divider.setLayoutParams(divParams);
+                    divider.setBackgroundColor(getResources().getColor(R.color.border_color, null));
+                    container.addView(divider);
+                };
+
+                // Create dialog first so rows can dismiss it
+                android.app.AlertDialog[] dialogRef = new android.app.AlertDialog[1];
+
+                // Rebuild with click actions
+                // Row: Choose from library
+                addRow(container, "Choose from library", R.drawable.ic_upload, dp16, dp12, dp1, () -> {
+                    if (dialogRef[0] != null) dialogRef[0].dismiss();
+                    checkGalleryPermissionAndPick();
+                });
+
+                addRow(container, "Take photo", R.drawable.ic_camera, dp16, dp12, dp1, () -> {
+                    if (dialogRef[0] != null) dialogRef[0].dismiss();
+                    checkCameraPermissionAndOpen();
+                });
+
+                if (hasPhoto) {
+                    // Row: Delete — red
+                    addRowColored(container, "Remove profile photo", R.drawable.ic_logout,
+                            dp16, dp12, dp1, R.color.destructive, () -> {
+                                if (dialogRef[0] != null) dialogRef[0].dismiss();
+                                new android.app.AlertDialog.Builder(requireContext())
+                                        .setTitle("Remove Profile Photo")
+                                        .setMessage("Are you sure you want to remove your profile photo?")
+                                        .setPositiveButton("Remove", (d, w) -> deleteProfilePhoto())
+                                        .setNegativeButton("Cancel", null)
+                                        .show();
+                            });
+                }
+
+                dialogRef[0] = new android.app.AlertDialog.Builder(requireContext())
+                        .setView(container)
+                        .create();
+
+                if (dialogRef[0].getWindow() != null) {
+                    dialogRef[0].getWindow().setBackgroundDrawableResource(
+                            android.R.color.transparent);
+                }
+                dialogRef[0].show();
+            });
+        }, e -> requireActivity().runOnUiThread(() ->
+                new android.app.AlertDialog.Builder(requireContext())
+                        .setItems(new String[]{"Choose from library", "Take photo"}, (d, w) ->
+                                startActivity(new Intent(requireActivity(), EditProfileActivity.class)
+                                        .putExtra("action", w == 0 ? "gallery" : "camera")))
+                        .show()));
+    }
+
+    private void addRow(android.widget.LinearLayout container, String label,
+                        int iconRes, int dp16, int dp12, int dp1, Runnable onClick) {
+        addRowColored(container, label, iconRes, dp16, dp12, dp1, R.color.foreground, onClick);
+    }
+
+    private void addRowColored(android.widget.LinearLayout container, String label,
+                               int iconRes, int dp16, int dp12, int dp1,
+                               int colorRes, Runnable onClick) {
+        android.widget.LinearLayout row = new android.widget.LinearLayout(requireContext());
+        row.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        row.setPadding(dp16, dp12, dp16, dp12);
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setBackgroundColor(getResources().getColor(R.color.card, null));
+        row.setOnClickListener(v -> onClick.run());
+
+        android.widget.ImageView icon = new android.widget.ImageView(requireContext());
+        android.widget.LinearLayout.LayoutParams iconParams =
+                new android.widget.LinearLayout.LayoutParams(dp16 * 2, dp16 * 2);
+        iconParams.setMarginEnd(dp16);
+        icon.setLayoutParams(iconParams);
+        icon.setImageResource(iconRes);
+        icon.setColorFilter(getResources().getColor(colorRes, null));
+
+        android.widget.TextView tv = new android.widget.TextView(requireContext());
+        tv.setText(label);
+        tv.setTextSize(14f);
+        tv.setTextColor(getResources().getColor(colorRes, null));
+        try {
+            android.graphics.Typeface tf = android.graphics.Typeface.createFromAsset(
+                    requireContext().getAssets(), "fonts/inter.ttf");
+            tv.setTypeface(tf);
+        } catch (Exception ignored) {}
+
+        row.addView(icon);
+        row.addView(tv);
+        container.addView(row);
+
+        // Divider
+        android.view.View divider = new android.view.View(requireContext());
+        android.widget.LinearLayout.LayoutParams divParams =
+                new android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT, dp1);
+        divider.setLayoutParams(divParams);
+        divider.setBackgroundColor(getResources().getColor(R.color.border_color, null));
+        container.addView(divider);
+    }
+
+    private void deleteProfilePhoto() {
+        FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        java.util.Map<String, Object> update = new java.util.HashMap<>();
+        update.put("avatarUrl", "");
+
+        FirebaseHelper.getInstance().getDb()
+                .collection(FirebaseHelper.COLLECTION_USERS)
+                .document(user.getUid())
+                .update(update)
+                .addOnSuccessListener(v -> requireActivity().runOnUiThread(() -> {
+                    ivAvatar.setImageDrawable(null);
+                    tvAvatarLetter.setVisibility(View.VISIBLE);
+                    Toast.makeText(requireContext(), "Photo removed", Toast.LENGTH_SHORT).show();
+                }))
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(), "Failed to remove photo", Toast.LENGTH_SHORT).show());
+    }
+
     private void deletePost(Place place, int position) {
         if (position < 0 || position >= myPosts.size()) return;
         Place removed = myPosts.remove(position);
@@ -328,6 +588,130 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private void checkGalleryPermissionAndPick() {
+        String perm = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU
+                ? android.Manifest.permission.READ_MEDIA_IMAGES
+                : android.Manifest.permission.READ_EXTERNAL_STORAGE;
+        if (androidx.core.content.ContextCompat.checkSelfPermission(requireContext(), perm)
+                == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            openGalleryFromProfile();
+        } else {
+            requestPermissions(new String[]{perm}, REQUEST_PERM_PROFILE);
+        }
+    }
+
+    private void checkCameraPermissionAndOpen() {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(requireContext(),
+                android.Manifest.permission.CAMERA)
+                == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            openCameraFromProfile();
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.CAMERA},
+                    REQUEST_PERM_PROFILE + 1);
+        }
+    }
+
+    private void openGalleryFromProfile() {
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_GALLERY_PROFILE);
+    }
+
+    private void openCameraFromProfile() {
+        try {
+            java.io.File photoFile = java.io.File.createTempFile(
+                    "avatar_", ".jpg", requireContext().getExternalCacheDir());
+            cameraImageUri = androidx.core.content.FileProvider.getUriForFile(
+                    requireContext(),
+                    requireContext().getPackageName() + ".provider",
+                    photoFile);
+            Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, cameraImageUri);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            startActivityForResult(intent, REQUEST_CAMERA_PROFILE);
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Camera not available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0
+                && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == REQUEST_PERM_PROFILE)     openGalleryFromProfile();
+            if (requestCode == REQUEST_PERM_PROFILE + 1) openCameraFromProfile();
+        } else {
+            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != android.app.Activity.RESULT_OK) return;
+
+        Uri imageUri = null;
+
+        if (requestCode == REQUEST_GALLERY_PROFILE && data != null) {
+            imageUri = data.getData();
+        } else if (requestCode == REQUEST_CAMERA_PROFILE) {
+            imageUri = cameraImageUri;
+        }
+
+        if (imageUri == null) return;
+
+        // Show preview immediately
+        tvAvatarLetter.setVisibility(View.GONE);
+        com.bumptech.glide.Glide.with(this).load(imageUri).centerCrop().into(ivAvatar);
+
+        // Save to Firebase
+        uploadProfilePhoto(imageUri);
+    }
+
+    private void uploadProfilePhoto(Uri imageUri) {
+        FirebaseUser user = FirebaseHelper.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        try {
+            java.io.InputStream is = requireContext().getContentResolver().openInputStream(imageUri);
+            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(is);
+            if (is != null) is.close();
+            if (bitmap == null) return;
+
+            // Resize + encode to base64
+            int max = 400;
+            float ratio = Math.min((float) max / bitmap.getWidth(), (float) max / bitmap.getHeight());
+            ratio = Math.min(ratio, 1f);
+            android.graphics.Bitmap resized = android.graphics.Bitmap.createScaledBitmap(
+                    bitmap,
+                    Math.round(ratio * bitmap.getWidth()),
+                    Math.round(ratio * bitmap.getHeight()), true);
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            resized.compress(android.graphics.Bitmap.CompressFormat.JPEG, 75, baos);
+            String base64 = android.util.Base64.encodeToString(
+                    baos.toByteArray(), android.util.Base64.NO_WRAP);
+
+            // Save to Firestore
+            java.util.Map<String, Object> update = new java.util.HashMap<>();
+            update.put("avatarUrl", base64);
+            FirebaseHelper.getInstance().getDb()
+                    .collection(FirebaseHelper.COLLECTION_USERS)
+                    .document(user.getUid())
+                    .update(update)
+                    .addOnSuccessListener(v ->
+                            Toast.makeText(requireContext(),
+                                    "Photo updated!", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e ->
+                            Toast.makeText(requireContext(),
+                                    "Failed to save photo", Toast.LENGTH_SHORT).show());
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Failed to process image", Toast.LENGTH_SHORT).show();
+        }
+    }
     private void updatePostStatsAfterDelete() {
         int posts = myPosts.size();
         int likes = 0;

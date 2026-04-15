@@ -90,7 +90,7 @@
                         android:layout_gravity="bottom|end"
                         android:background="@drawable/bg_chip_active"
                         android:padding="7dp"
-                        android:src="@drawable/ic_camera"
+                        android:src="@drawable/ic_edit"
                         app:tint="@color/primary_foreground" />
 
                 </FrameLayout>
@@ -104,21 +104,6 @@
                     android:textColor="@color/primary"
                     android:textSize="13sp"
                     android:fontFamily="@font/poppins_semibold" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_delete_photo"
-                    style="@style/Widget.HiddenSpot.Button.Destructive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:text="Remove Photo"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:visibility="gone"
-                    app:icon="@drawable/ic_logout"
-                    app:iconTint="@color/destructive"
-                    app:iconSize="14dp"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.HiddenSpot.TextInput"

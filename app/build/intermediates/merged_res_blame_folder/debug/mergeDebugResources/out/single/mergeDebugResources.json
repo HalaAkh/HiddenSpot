@@ -4,6 +4,10 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\mipmap-xxxhdpi\\ic_launcher.webp"
     },
     {
+        "merged": "com.hiddenspot.app-debug-68:/xml_file_paths.xml.flat",
+        "source": "com.hiddenspot.app-main-70:/xml/file_paths.xml"
+    },
+    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-debug-68:\\drawable_ic_heart.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\drawable\\ic_heart.xml"
     },
@@ -72,10 +76,6 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\drawable\\ic_arrow_left.xml"
     },
     {
-        "merged": "com.hiddenspot.app-debug-68:/layout_item_review.xml.flat",
-        "source": "com.hiddenspot.app-main-70:/layout/item_review.xml"
-    },
-    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-debug-68:\\layout_item_notification.xml.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\item_notification.xml"
     },
@@ -94,10 +94,6 @@
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-debug-68:\\mipmap-hdpi_ic_launcher_round.webp.flat",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\mipmap-hdpi\\ic_launcher_round.webp"
-    },
-    {
-        "merged": "com.hiddenspot.app-debug-68:/layout_fragment_profile.xml.flat",
-        "source": "com.hiddenspot.app-main-70:/layout/fragment_profile.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-debug-68:\\drawable_ic_logout.xml.flat",

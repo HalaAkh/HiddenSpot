@@ -3356,6 +3356,7 @@ id auto
 id autoComplete
 id autoCompleteToEnd
 id autoCompleteToStart
+id avatar_container
 id barrier
 id baseline
 id beginOnFirstDraw
@@ -3395,6 +3396,7 @@ id buttonPanel
 id cache_measures
 id callMeasure
 id cancel_button
+id card_thought_bubble
 id carryVelocity
 id center
 id centerCrop
@@ -3880,6 +3882,7 @@ id tv_stat_places
 id tv_stat_rating
 id tv_subtitle
 id tv_tagline
+id tv_thought_bubble
 id tv_title
 id tv_toggle_action
 id tv_toggle_label
@@ -5736,4 +5739,5 @@ styleable ViewStubCompat android_id android_layout android_inflatedId
 styleable ViewTransition android_id SharedValue SharedValueId clearsTag duration ifTagNotSet ifTagSet motionInterpolator motionTarget onStateTransition pathMotionArc setsTag transitionDisable upDuration viewTransitionMode
 styleable WormDotsIndicator dotsClickable dotsColor dotsCornerRadius dotsSize dotsSpacing dotsStrokeColor dotsStrokeWidth
 styleable include constraintSet
+xml file_paths
 xml image_share_filepaths

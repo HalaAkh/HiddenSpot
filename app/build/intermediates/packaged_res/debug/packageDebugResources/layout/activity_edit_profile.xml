@@ -90,7 +90,7 @@
                         android:layout_gravity="bottom|end"
                         android:background="@drawable/bg_chip_active"
                         android:padding="7dp"
-                        android:src="@drawable/ic_camera"
+                        android:src="@drawable/ic_edit"
                         app:tint="@color/primary_foreground" />
 
                 </FrameLayout>
