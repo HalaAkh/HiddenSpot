@@ -52,6 +52,8 @@ drawable ic_arrow_left
 drawable ic_camera
 drawable ic_chevron_right
 drawable ic_edit
+drawable ic_eye
+drawable ic_eye_off
 drawable ic_filter
 drawable ic_heart
 drawable ic_heart_filled
@@ -61,6 +63,7 @@ drawable ic_launcher_foreground
 drawable ic_logout
 drawable ic_map_pin
 drawable ic_navigation
+drawable ic_password_eye_selector
 drawable ic_phone
 drawable ic_profile
 drawable ic_search

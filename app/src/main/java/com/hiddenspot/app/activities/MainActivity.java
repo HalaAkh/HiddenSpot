@@ -11,10 +11,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.hiddenspot.app.R;
-import com.hiddenspot.app.fragments.FavoritesFragment;
-import com.hiddenspot.app.fragments.HomeFragment;
-import com.hiddenspot.app.fragments.ProfileFragment;
-import com.hiddenspot.app.fragments.SearchFragment;
+import com.hiddenspot.app.screens.FavoritesScreen;
+import com.hiddenspot.app.screens.HomeScreen;
+import com.hiddenspot.app.screens.ProfileScreen;
+import com.hiddenspot.app.screens.SearchScreen;
 import com.hiddenspot.app.models.AppNotification;
 import com.hiddenspot.app.utils.FirebaseHelper;
 
@@ -37,14 +37,14 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
 
-        if (savedInstanceState == null) loadFragment(new HomeFragment());
+        if (savedInstanceState == null) loadFragment(new HomeScreen());
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home)      { loadFragment(new HomeFragment());      return true; }
-            if (id == R.id.nav_search)    { loadFragment(new SearchFragment());    return true; }
-            if (id == R.id.nav_favorites) { loadFragment(new FavoritesFragment()); return true; }
-            if (id == R.id.nav_profile)   { loadFragment(new ProfileFragment());   return true; }
+            if (id == R.id.nav_home)      { loadFragment(new HomeScreen());      return true; }
+            if (id == R.id.nav_search)    { loadFragment(new SearchScreen());    return true; }
+            if (id == R.id.nav_favorites) { loadFragment(new FavoritesScreen()); return true; }
+            if (id == R.id.nav_profile)   { loadFragment(new ProfileScreen());   return true; }
             if (id == R.id.nav_add) {
                 startActivity(new Intent(this, AddPlaceActivity.class));
                 return false;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container, fragment).commit();
     }
 
-    private void startNotificationsListener() {
+    private void  startNotificationsListener() {
         String uid = FirebaseHelper.getInstance().getCurrentUser() != null
                 ? FirebaseHelper.getInstance().getCurrentUser().getUid() : null;
         if (uid == null) return;

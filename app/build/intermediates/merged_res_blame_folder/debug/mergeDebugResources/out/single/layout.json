@@ -32,16 +32,16 @@
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\activity_splash.xml"
     },
     {
+        "merged": "com.hiddenspot.app-mergeDebugResources-67:/layout/activity_auth.xml",
+        "source": "com.hiddenspot.app-main-70:/layout/activity_auth.xml"
+    },
+    {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\activity_auth.xml",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\activity_auth.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\activity_place_details.xml",
         "source": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-main-70:\\layout\\activity_place_details.xml"
-    },
-    {
-        "merged": "com.hiddenspot.app-mergeDebugResources-67:/layout/activity_edit_profile.xml",
-        "source": "com.hiddenspot.app-main-70:/layout/activity_edit_profile.xml"
     },
     {
         "merged": "C:\\Users\\user\\.gradle\\daemon\\9.0-milestone-1\\com.hiddenspot.app-mergeDebugResources-67:\\layout\\item_profile_menu_row.xml",
